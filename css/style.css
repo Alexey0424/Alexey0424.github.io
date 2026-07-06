@@ -478,26 +478,19 @@ html.js .reveal.in { opacity: 1; transform: none; }
   transition: transform 0.6s var(--ease-out), border-color 0.4s ease;
 }
 .case-media:hover .shot { border-color: var(--terra-deep); }
-.stack { padding-top: 9%; }
-.stack .shot-back {
-  position: absolute;
-  top: 0; right: 0;
-  width: 62%;
-  max-height: 22rem;
+.duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  align-items: start;
+}
+.duo .shot {
+  width: 100%;
+  aspect-ratio: 7 / 9;
   object-fit: cover;
   object-position: top center;
-  opacity: 0.92;
 }
-.stack .shot-front {
-  position: relative;
-  width: 86%;
-  max-height: 30rem;
-  object-fit: cover;
-  object-position: top center;
-  z-index: 1;
-}
-.stack:hover .shot-front { transform: translate(-6px, -6px); }
-.stack:hover .shot-back  { transform: translate(6px, 6px); }
+.duo .shot:hover { transform: translateY(-5px); }
 
 /* cursor spotlight */
 [data-spotlight] { position: relative; overflow: hidden; }
