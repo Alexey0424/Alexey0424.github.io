@@ -1,19 +1,54 @@
 /* Alexey Velásquez · portfolio interactions
-   signal field · cursor aura · magnetic buttons · spotlight · reveals · counters */
+   terra aurora · theme toggle · timeline beam · stack readout
+   cursor aura · magnetic buttons · spotlight · reveals · counters */
 
 (() => {
   'use strict';
 
-  document.documentElement.classList.add('js');
+  const root = document.documentElement;
+  root.classList.add('js');
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(pointer: fine)').matches;
+  const isLight = () => root.getAttribute('data-theme') === 'light';
 
   /* ------------------------------------------------------------------
-     Signal field — a mesh of waveform lines rendered as glowing dots.
-     The cursor is a disturbance: it bends the lines and heats them up.
+     Theme toggle — night terra by default, clear terra on demand
      ------------------------------------------------------------------ */
-  const canvas = document.getElementById('signal');
+  const themeBtn = document.querySelector('.theme-toggle');
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+
+  const applyThemeExtras = () => {
+    const light = isLight();
+    if (themeMeta) themeMeta.setAttribute('content', light ? '#f2e7dd' : '#1b120d');
+    if (themeBtn) {
+      themeBtn.setAttribute('aria-pressed', String(light));
+      themeBtn.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
+    }
+    window.dispatchEvent(new CustomEvent('themechange'));
+  };
+
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      root.classList.add('theming');
+      if (isLight()) {
+        root.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        root.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }
+      applyThemeExtras();
+      setTimeout(() => root.classList.remove('theming'), 450);
+    });
+  }
+  applyThemeExtras();
+
+  /* ------------------------------------------------------------------
+     Terra aurora — molten clay gradients that drift and lean
+     toward the cursor. No dots. Smooth, warm, alive.
+     ------------------------------------------------------------------ */
+  const canvas = document.getElementById('aurora');
   if (canvas) {
     const ctx = canvas.getContext('2d');
     const hero = canvas.parentElement;
@@ -22,7 +57,33 @@
     let rafId = 0;
     let t = 0;
 
-    const mouse = { x: -9999, y: -9999, lastMove: -Infinity };
+    const mouse = { x: null, y: null };
+
+    const PALETTES = {
+      dark: {
+        composite: 'lighter',
+        blobs: [
+          { c: '217,111,71', a: 0.34 },  // terracotta
+          { c: '232,152,92', a: 0.22 },  // warm sand
+          { c: '155,78,52',  a: 0.30 }   // deep clay
+        ]
+      },
+      light: {
+        composite: 'source-over',
+        blobs: [
+          { c: '206,102,66', a: 0.26 },
+          { c: '226,150,96', a: 0.22 },
+          { c: '166,88,58',  a: 0.18 }
+        ]
+      }
+    };
+
+    // per-blob drift parameters (frequency, phase, parallax pull)
+    const B = [
+      { fx: 0.21, fy: 0.16, px: 0.62, py: 0.30, pull: 0.16, r: 0.62, x: 0, y: 0 },
+      { fx: 0.13, fy: 0.24, px: 2.10, py: 4.20, pull: -0.10, r: 0.52, x: 0, y: 0 },
+      { fx: 0.17, fy: 0.11, px: 4.60, py: 1.30, pull: 0.07, r: 0.72, x: 0, y: 0 }
+    ];
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -34,43 +95,34 @@
     };
 
     const draw = () => {
+      const pal = PALETTES[isLight() ? 'light' : 'dark'];
       ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = pal.composite;
 
-      // virtual cursor drifts when the real one is idle or absent
-      const idle = performance.now() - mouse.lastMove > 2600;
-      let mx = mouse.x, my = mouse.y;
-      if (idle || !finePointer) {
-        mx = w * (0.5 + 0.36 * Math.sin(t * 0.42));
-        my = h * (0.48 + 0.30 * Math.sin(t * 0.31 + 1.7));
+      const mx = mouse.x === null ? w * 0.62 : mouse.x;
+      const my = mouse.y === null ? h * 0.40 : mouse.y;
+      const R = Math.min(w, h);
+
+      for (let i = 0; i < B.length; i++) {
+        const b = B[i];
+        // slow drift anchored to thirds of the hero, plus cursor lean
+        const ax = w * (0.30 + 0.40 * Math.sin(t * b.fx + b.px));
+        const ay = h * (0.35 + 0.30 * Math.sin(t * b.fy + b.py));
+        const tx = ax + (mx - w / 2) * b.pull;
+        const ty = ay + (my - h / 2) * b.pull;
+        b.x += (tx - b.x) * 0.045;
+        b.y += (ty - b.y) * 0.045;
+
+        const rad = R * b.r;
+        const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, rad);
+        const blob = pal.blobs[i];
+        g.addColorStop(0, 'rgba(' + blob.c + ',' + blob.a + ')');
+        g.addColorStop(0.55, 'rgba(' + blob.c + ',' + (blob.a * 0.35).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + blob.c + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(b.x - rad, b.y - rad, rad * 2, rad * 2);
       }
-
-      const rows = Math.max(16, Math.min(26, Math.round(h / 34)));
-      const gapY = h / (rows + 1);
-      const stepX = Math.max(12, w / 90);
-
-      for (let r = 1; r <= rows; r++) {
-        const baseY = r * gapY;
-        for (let x = 0; x <= w; x += stepX) {
-          const wave =
-            Math.sin(x * 0.006 + t * 1.05 + r * 0.65) * 9 +
-            Math.sin(x * 0.014 - t * 0.7 + r * 1.4) * 5;
-
-          const dx = x - mx;
-          const dyb = baseY - my;
-          const d2 = dx * dx + dyb * dyb;
-          const f = Math.exp(-d2 / 42000); // ~205px falloff
-
-          const y = baseY + wave * (1 + 2.6 * f) + (dyb / Math.sqrt(d2 + 40)) * f * 52;
-          const alpha = 0.11 + 0.75 * f;
-          const size = 1.25 + 1.75 * f;
-
-          // cool ember far away, hot amber near the cursor
-          const g = Math.round(112 + 68 * f);
-          const b = Math.round(38 + 62 * f);
-          ctx.fillStyle = 'rgba(255,' + g + ',' + b + ',' + alpha.toFixed(3) + ')';
-          ctx.fillRect(x - size / 2, y - size / 2, size, size);
-        }
-      }
+      ctx.globalCompositeOperation = 'source-over';
     };
 
     const loop = () => {
@@ -85,18 +137,19 @@
     };
 
     resize();
+    // settle blobs onto their anchors before first paint
+    for (let k = 0; k < 60; k++) { t += 0.016; draw(); }
 
     if (reducedMotion) {
-      // a single calm frame, no animation
-      draw();
       window.addEventListener('resize', () => { resize(); draw(); });
+      window.addEventListener('themechange', () => draw());
     } else {
-      window.addEventListener('resize', () => { resize(); });
+      window.addEventListener('resize', resize);
+      window.addEventListener('themechange', () => { if (!running) draw(); });
       window.addEventListener('pointermove', (e) => {
         const rect = canvas.getBoundingClientRect();
         mouse.x = e.clientX - rect.left;
         mouse.y = e.clientY - rect.top;
-        mouse.lastMove = performance.now();
       }, { passive: true });
 
       new IntersectionObserver(([entry]) => {
@@ -117,13 +170,13 @@
      ------------------------------------------------------------------ */
   const aura = document.querySelector('.cursor-aura');
   if (aura && finePointer && !reducedMotion) {
-    let ax = -600, ay = -600, tx = ax, ty = ay, auraRaf = 0, active = false;
+    let ax = -600, ay = -600, tx = ax, ty = ay, active = false;
 
     const follow = () => {
       ax += (tx - ax) * 0.12;
       ay += (ty - ay) * 0.12;
       aura.style.transform = 'translate3d(' + ax + 'px,' + ay + 'px,0)';
-      auraRaf = requestAnimationFrame(follow);
+      requestAnimationFrame(follow);
     };
 
     window.addEventListener('pointermove', (e) => {
@@ -133,16 +186,12 @@
         active = true;
         document.body.classList.add('aura-on');
         ax = tx; ay = ty;
-        auraRaf = requestAnimationFrame(follow);
+        requestAnimationFrame(follow);
       }
     }, { passive: true });
 
-    document.addEventListener('mouseleave', () => {
-      document.body.classList.remove('aura-on');
-    });
-    document.addEventListener('mouseenter', () => {
-      if (active) document.body.classList.add('aura-on');
-    });
+    document.addEventListener('mouseleave', () => document.body.classList.remove('aura-on'));
+    document.addEventListener('mouseenter', () => { if (active) document.body.classList.add('aura-on'); });
   }
 
   /* ------------------------------------------------------------------
@@ -177,10 +226,56 @@
   }
 
   /* ------------------------------------------------------------------
+     Experience timeline — the light that walks the line
+     ------------------------------------------------------------------ */
+  const timeline = document.querySelector('.timeline');
+  if (timeline) {
+    const entries = [...timeline.querySelectorAll('.entry')];
+    if (reducedMotion) {
+      entries.forEach((e) => e.classList.add('lit'));
+    } else {
+      let ticking = false;
+      const update = () => {
+        ticking = false;
+        const rect = timeline.getBoundingClientRect();
+        const focus = window.innerHeight * 0.55;
+        const p = Math.max(0, Math.min(1, (focus - rect.top) / rect.height));
+        timeline.style.setProperty('--tp', p.toFixed(4));
+        const tipY = rect.top + p * rect.height;
+        entries.forEach((en) => {
+          en.classList.toggle('lit', en.getBoundingClientRect().top + 40 <= tipY);
+        });
+      };
+      const onScroll = () => {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      update();
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Tech stack readout — hover a tile, see where it earned its place
+     ------------------------------------------------------------------ */
+  const readout = document.querySelector('.stack-readout');
+  if (readout) {
+    const show = (tile) => {
+      document.querySelectorAll('.tile.active').forEach((x) => x.classList.remove('active'));
+      tile.classList.add('active');
+      readout.textContent = '◆ ' + tile.textContent.trim() + ' · ' + tile.dataset.where;
+    };
+    document.querySelectorAll('.tile').forEach((tile) => {
+      tile.addEventListener('mouseenter', () => show(tile));
+      tile.addEventListener('focus', () => show(tile));
+      tile.addEventListener('click', () => show(tile));
+    });
+  }
+
+  /* ------------------------------------------------------------------
      Scroll reveals + metric counters
      ------------------------------------------------------------------ */
   const reveals = document.querySelectorAll('.reveal');
-  const counters = document.querySelectorAll('[data-count]');
 
   const runCounter = (el) => {
     const target = parseFloat(el.dataset.count);
@@ -200,8 +295,8 @@
   if (!('IntersectionObserver' in window) || reducedMotion) {
     reveals.forEach((el) => el.classList.add('in'));
   } else {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
+    const io = new IntersectionObserver((entries2) => {
+      entries2.forEach((entry) => {
         if (!entry.isIntersecting) return;
         entry.target.classList.add('in');
         entry.target.querySelectorAll('[data-count]').forEach(runCounter);
@@ -209,29 +304,19 @@
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
     reveals.forEach((el) => io.observe(el));
-
-    // counters that live outside .reveal containers
-    counters.forEach((el) => {
-      if (!el.closest('.reveal')) {
-        const cio = new IntersectionObserver(([entry]) => {
-          if (entry.isIntersecting) { runCounter(el); cio.disconnect(); }
-        }, { threshold: 0.4 });
-        cio.observe(el);
-      }
-    });
   }
 
   /* ------------------------------------------------------------------
      Nav state
      ------------------------------------------------------------------ */
   const nav = document.querySelector('.nav');
-  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  const onNavScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
+  window.addEventListener('scroll', onNavScroll, { passive: true });
+  onNavScroll();
 
   /* ------------------------------------------------------------------ */
   console.log(
     '%csignal detected.%c\nReading the source? Good instinct. The rest is at https://github.com/Alexey0424',
-    'color:#ff7a33;font-weight:bold;font-size:14px', 'color:inherit'
+    'color:#d96f47;font-weight:bold;font-size:14px', 'color:inherit'
   );
 })();
