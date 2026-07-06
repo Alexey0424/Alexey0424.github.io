@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alexey Velásquez · AI Engineer</title>
+  <meta name="description" content="AI engineer building self-hosted intelligence: speech emotion pipelines, grounded LLM agents, interpretable ML, and the automation that wires them into real businesses.">
+  <meta property="og:title" content="Alexey Velásquez · AI Engineer">
+  <meta property="og:description" content="Self-hosted AI systems, shipped end to end: speech intelligence, grounded LLM agents, interpretable ML.">
+  <meta property="og:image" content="https://alexey0424.github.io/assets/orca-dashboard.png">
+  <meta property="og:url" content="https://alexey0424.github.io/">
+  <meta name="theme-color" content="#16100b">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2316100b'/%3E%3Cpath d='M8 32h6l4-14 6 28 6-22 5 12 4-6h17' fill='none' stroke='%23ff7a33' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#work">Skip to the work</a>
+  <div class="cursor-aura" aria-hidden="true"></div>
+
+  <header class="nav" id="top">
+    <a class="brand" href="#top" aria-label="Alexey Velásquez, back to top">
+      <svg class="brand-glyph" viewBox="0 0 44 24" aria-hidden="true">
+        <path d="M2 12h5l3-9 4 18 4-14 4 8 3-4h17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Alexey Velásquez</span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#work">Work</a>
+      <a href="#ml">ML</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="btn btn-ghost btn-nav" href="https://github.com/Alexey0424" target="_blank" rel="noopener" data-magnetic>
+      GitHub <span class="arrow" aria-hidden="true">&#8599;</span>
+    </a>
+  </header>
+
+  <main>
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <canvas id="signal" aria-hidden="true"></canvas>
+      <div class="hero-inner">
+        <p class="hero-hello mono load-rise" style="--l:0">Hi, I'm Alexey Velásquez.</p>
+        <h1 class="hero-title">
+          <span class="line load-rise" style="--l:1">I build AI that runs</span>
+          <span class="line load-rise" style="--l:2">where <em>your data</em> lives.</span>
+        </h1>
+        <p class="hero-sub load-rise" style="--l:3">
+          Speech emotion pipelines, LLM agents that ground every claim, interpretable ML,
+          and the event-driven automation that wires them into a business.
+          Designed, deployed, and running: mostly on hardware you own.
+        </p>
+        <div class="hero-cta load-rise" style="--l:4">
+          <a class="btn btn-ember" href="#work" data-magnetic>See the work <span class="arrow" aria-hidden="true">&#8595;</span></a>
+          <a class="btn btn-ghost" href="https://github.com/Alexey0424" target="_blank" rel="noopener" data-magnetic>GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        </div>
+        <p class="hero-status mono load-rise" style="--l:5"><span class="pulse-dot" aria-hidden="true"></span> Open to AI / ML engineering roles</p>
+      </div>
+    </section>
+
+    <!-- ============ FEATURED WORK ============ -->
+    <section class="work" id="work">
+      <div class="section-head reveal">
+        <h2>Selected work</h2>
+        <p>Three systems built end to end and run for real: real users, real data, measured results.</p>
+      </div>
+
+      <!-- ORCA -->
+      <article class="case reveal">
+        <div class="case-text">
+          <p class="case-tag mono">orca-call-intelligence</p>
+          <h3>Sales calls in. Emotion-aware intelligence out. Nothing leaves the machine.</h3>
+          <p class="case-story">
+            ORCA is a self-hosted pipeline that turns a raw call recording into a diarized transcript,
+            nine-class speech emotion, prosody analysis, extracted KPIs, a coached scorecard, and a
+            branded PDF report. A pgvector index makes every call searchable, and an n8n agent lets
+            the team chat with the whole archive.
+          </p>
+          <ul class="case-results">
+            <li><strong class="mono">5</strong> GPU-accelerated FastAPI services, launched with one <code>docker compose up</code></li>
+            <li><strong class="mono">~95%</strong> retrieval quality at <strong class="mono">20%</strong> of the storage, via Matryoshka-truncated embeddings</li>
+            <li>PII redacted with Presidio before anything reaches the database</li>
+          </ul>
+          <ul class="chips" aria-label="Technologies">
+            <li>Whisper</li><li>pyannote</li><li>emotion2vec</li><li>FastAPI</li><li>pgvector</li><li>Ollama</li><li>n8n</li><li>Docker</li><li>CUDA</li>
+          </ul>
+          <a class="case-link" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">Read the code on GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        </div>
+        <div class="case-media stack" data-spotlight>
+          <img class="shot shot-back" src="assets/orca-report.png" alt="ORCA branded PDF call report with emotion timeline and coaching scorecard" loading="lazy" decoding="async" width="1000" height="1500">
+          <img class="shot shot-front" src="assets/orca-dashboard.png" alt="ORCA dashboard: diarized sales call with per-speaker emotion, KPIs and scorecard" loading="lazy" decoding="async" width="1200" height="1929">
+        </div>
+      </article>
+
+      <!-- SCRAPER -->
+      <article class="case case-flip reveal">
+        <div class="case-text">
+          <p class="case-tag mono">llm-web-scraper</p>
+          <h3>A plain-English prompt in. A grounded spreadsheet out. One local model.</h3>
+          <p class="case-story">
+            Describe the records you want and hand over a seed URL. A local LLM plans the crawl,
+            a best-first frontier explores the site, pages are classified by a heuristics-plus-LLM
+            blend, and every extracted value is checked against the page text before it reaches
+            your spreadsheet. The model is never allowed to invent data.
+          </p>
+          <ul class="case-results">
+            <li><strong class="mono">151</strong> tests, all running offline with no LLM required</li>
+            <li>Schema-constrained decoding on every single LLM call</li>
+            <li>Live crawl UI with plan, progress, ETA and a per-call timeline</li>
+          </ul>
+          <ul class="chips" aria-label="Technologies">
+            <li>Ollama</li><li>Flask</li><li>SQLite</li><li>Docker</li><li>pytest</li><li>JSON-LD</li>
+          </ul>
+          <a class="case-link" href="https://github.com/Alexey0424/llm-web-scraper" target="_blank" rel="noopener">Read the code on GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        </div>
+        <div class="case-media" data-spotlight>
+          <img class="shot" src="assets/scraper-live.png" alt="LLM web scraper mid-crawl: live plan, progress, ETA and per-call timeline in the dark UI" loading="lazy" decoding="async" width="1440" height="1000">
+        </div>
+      </article>
+
+      <!-- CRM SUITE -->
+      <article class="case reveal">
+        <div class="case-text">
+          <p class="case-tag mono">real-estate-crm-automation-suite</p>
+          <h3>The event-driven nervous system a US sales team runs their day on.</h3>
+          <p class="case-story">
+            Production integration suite for a real estate wholesaling company. CRM stage changes
+            become routed Slack notifications, cold leads from a Google Form are deduplicated and
+            assigned round-robin, and every completed call is mirrored onto the right contact with
+            its recording, AI summary, and sentiment.
+          </p>
+          <ul class="case-results">
+            <li><strong class="mono">3</strong> event-driven pipelines connecting Follow Up Boss, JustCall, Slack and Google Forms</li>
+            <li><strong class="mono">26</strong> passing tests over API-authored Make.com scenarios</li>
+            <li>Ran in production; sanitized so the engineering can be shown publicly</li>
+          </ul>
+          <ul class="chips" aria-label="Technologies">
+            <li>Make.com</li><li>n8n</li><li>Python</li><li>Node.js</li><li>Slack Block Kit</li><li>Apps Script</li><li>Webhooks</li>
+          </ul>
+          <a class="case-link" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">Read the code on GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        </div>
+        <div class="case-media" data-spotlight>
+          <svg class="flow-diagram" viewBox="0 0 560 380" role="img" aria-label="Event flow: CRM webhooks, Google Form and JustCall feed three scenarios that write to Slack and the CRM">
+            <!-- source nodes -->
+            <g class="node" transform="translate(16,40)">
+              <rect width="150" height="52" rx="10"/>
+              <text x="14" y="22">Follow Up Boss</text>
+              <text x="14" y="40" class="sub">stage webhooks</text>
+            </g>
+            <g class="node" transform="translate(16,164)">
+              <rect width="150" height="52" rx="10"/>
+              <text x="14" y="22">Google Form</text>
+              <text x="14" y="40" class="sub">cold lead intake</text>
+            </g>
+            <g class="node" transform="translate(16,288)">
+              <rect width="150" height="52" rx="10"/>
+              <text x="14" y="22">JustCall</text>
+              <text x="14" y="40" class="sub">6 webhook topics</text>
+            </g>
+            <!-- scenario nodes -->
+            <g class="node hub" transform="translate(228,40)">
+              <rect width="128" height="52" rx="10"/>
+              <text x="14" y="22">Scenario A</text>
+              <text x="14" y="40" class="sub">route + notify</text>
+            </g>
+            <g class="node hub" transform="translate(228,164)">
+              <rect width="128" height="52" rx="10"/>
+              <text x="14" y="22">Scenario B</text>
+              <text x="14" y="40" class="sub">dedupe + assign</text>
+            </g>
+            <g class="node hub" transform="translate(228,288)">
+              <rect width="128" height="52" rx="10"/>
+              <text x="14" y="22">Scenario C</text>
+              <text x="14" y="40" class="sub">match + log call</text>
+            </g>
+            <!-- target nodes -->
+            <g class="node" transform="translate(420,102)">
+              <rect width="124" height="52" rx="10"/>
+              <text x="14" y="22">Slack</text>
+              <text x="14" y="40" class="sub">routed channels</text>
+            </g>
+            <g class="node" transform="translate(420,226)">
+              <rect width="124" height="52" rx="10"/>
+              <text x="14" y="22">CRM record</text>
+              <text x="14" y="40" class="sub">person + call log</text>
+            </g>
+            <!-- edges -->
+            <g class="edges">
+              <path d="M166 66 C 200 66, 194 66, 228 66"/>
+              <path d="M166 190 C 200 190, 194 190, 228 190"/>
+              <path d="M166 314 C 200 314, 194 314, 228 314"/>
+              <path d="M356 66 C 396 66, 386 122, 420 126"/>
+              <path d="M356 190 C 396 190, 386 138, 420 132"/>
+              <path d="M356 190 C 396 190, 386 244, 420 248"/>
+              <path d="M356 314 C 396 314, 386 260, 420 254"/>
+            </g>
+            <!-- traveling pulses -->
+            <circle class="pulse-a" cx="166" cy="66" r="3.5"/>
+            <circle class="pulse-b" cx="166" cy="190" r="3.5"/>
+            <circle class="pulse-c" cx="166" cy="314" r="3.5"/>
+          </svg>
+        </div>
+      </article>
+    </section>
+
+    <!-- ============ APPLIED ML ============ -->
+    <section class="ml" id="ml">
+      <div class="section-head reveal">
+        <h2>Applied ML, measured honestly</h2>
+        <p>Research-grade projects with real data, cross-validated results and SHAP on the table.</p>
+      </div>
+      <div class="ml-rows">
+        <a class="ml-row reveal" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener" data-spotlight>
+          <div class="ml-info">
+            <h3>Wind turbine damage detection</h3>
+            <p>Structural damage detection from vibration signals: 6,000+ real records collected over 1.5 years
+               on a 14-meter turbine, features via Frequency Domain Decomposition, five model families in tournament.</p>
+          </div>
+          <div class="ml-metric">
+            <span class="metric-num mono" data-count="0.973" data-decimals="3">0.973</span>
+            <span class="metric-label">AUC, damage detection, <br>LightGBM on hold-out</span>
+          </div>
+        </a>
+        <a class="ml-row reveal" href="https://github.com/Alexey0424/rural-school-risk-ml" target="_blank" rel="noopener" data-spotlight>
+          <div class="ml-info">
+            <h3>Rural school risk screening</h3>
+            <p>Interpretable screening of rural schools against four natural hazards. An 11-algorithm tournament;
+               the SHAP signal concentrates where the failure physics says it should. Ships as a Streamlit app.</p>
+          </div>
+          <div class="ml-metric">
+            <span class="metric-num mono" data-count="0.966" data-decimals="3">0.966</span>
+            <span class="metric-label">macro F1, best hazard, <br>cross-validated</span>
+          </div>
+        </a>
+        <a class="ml-row reveal" href="https://github.com/Alexey0424/pqr_sentiment_analysis" target="_blank" rel="noopener" data-spotlight>
+          <div class="ml-info">
+            <h3>Citizen complaint sentiment (Spanish)</h3>
+            <p>Sentiment and emotion on 307 public-utility complaints with Spanish transformers, validated against
+               multilingual BERT. A tested package plus a desktop app that runs inference locally.</p>
+          </div>
+          <div class="ml-metric">
+            <span class="metric-num mono" data-count="68" data-suffix="%">68%</span>
+            <span class="metric-label">of records negative, <br>zero positive: the finding</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ CAPABILITIES ============ -->
+    <section class="capabilities" id="capabilities">
+      <div class="section-head reveal">
+        <h2>What I work with</h2>
+      </div>
+      <dl class="cap-grid">
+        <div class="cap reveal" style="--d:0">
+          <dt>Speech and audio AI</dt>
+          <dd>ASR, diarization, speech emotion, prosody.
+            <span class="mono">Whisper · pyannote · emotion2vec · openSMILE</span></dd>
+        </div>
+        <div class="cap reveal" style="--d:1">
+          <dt>LLM systems</dt>
+          <dd>RAG, agents, schema-constrained generation, grounding.
+            <span class="mono">Ollama · pgvector · n8n · GLiNER</span></dd>
+        </div>
+        <div class="cap reveal" style="--d:2">
+          <dt>Machine learning</dt>
+          <dd>Gradient boosting, model tournaments, honest evaluation, SHAP interpretability.
+            <span class="mono">LightGBM · scikit-learn · pandas</span></dd>
+        </div>
+        <div class="cap reveal" style="--d:3">
+          <dt>Automation and integration</dt>
+          <dd>Event-driven pipelines, webhooks, CRM and messaging APIs.
+            <span class="mono">Make.com · n8n · Slack · Apps Script</span></dd>
+        </div>
+        <div class="cap reveal" style="--d:4">
+          <dt>Self-hosted infrastructure</dt>
+          <dd>GPU inference, composed services, local-first privacy.
+            <span class="mono">FastAPI · Docker · CUDA · PostgreSQL · Presidio</span></dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="about" id="about">
+      <div class="about-inner reveal">
+        <h2>About</h2>
+        <p class="about-lede">
+          I'm Alexey David Velásquez Betancurt. My background spans academic research
+          (structural ML, public-sector NLP in Spanish) and production engineering for a
+          US real estate company.
+        </p>
+        <p>
+          I like systems I can hold end to end: the model, the pipeline around it, the
+          infrastructure it runs on, and the report a human actually reads. If it can run on
+          your own hardware, I will make it run on your own hardware. Bilingual: Spanish and English.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="contact" id="contact">
+      <div class="contact-inner reveal">
+        <h2>Let's talk.</h2>
+        <p>Looking for an AI engineer who ships whole systems? My inbox is open.</p>
+        <div class="contact-cta">
+          <a class="btn btn-ember btn-big" href="mailto:alexeyvb135@gmail.com" data-magnetic>Email me <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="btn btn-ghost btn-big" href="https://github.com/Alexey0424" target="_blank" rel="noopener" data-magnetic>GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        </div>
+        <p class="contact-mail mono">alexeyvb135@gmail.com</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 Alexey Velásquez · Designed and built from scratch. No template.</p>
+    <a href="#top">Back to top <span class="arrow" aria-hidden="true">&#8593;</span></a>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
