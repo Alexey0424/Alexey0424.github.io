@@ -45,84 +45,150 @@
   applyThemeExtras();
 
   /* ------------------------------------------------------------------
-     Terra aurora — molten clay gradients that drift and lean
-     toward the cursor. No dots. Smooth, warm, alive.
+     Terra water — a full-page water surface of flowing contour lines.
+     It ripples with the cursor, and as key content scrolls into view
+     the water parts around it, compressing into dense rows at the
+     edges of the space it leaves behind.
      ------------------------------------------------------------------ */
-  const canvas = document.getElementById('aurora');
+  const canvas = document.getElementById('water');
   if (canvas) {
     const ctx = canvas.getContext('2d');
-    const hero = canvas.parentElement;
     let w = 0, h = 0, dpr = 1;
-    let running = false, heroVisible = true;
+    let running = false;
     let rafId = 0;
     let t = 0;
 
-    const mouse = { x: null, y: null };
+    const mouse = { x: -9999, y: -9999 };
+    const ripples = [];
+    let lastRipple = 0, lastRx = 0, lastRy = 0;
 
-    const PALETTES = {
-      dark: {
-        composite: 'lighter',
-        blobs: [
-          { c: '217,111,71', a: 0.34 },  // terracotta
-          { c: '232,152,92', a: 0.22 },  // warm sand
-          { c: '155,78,52',  a: 0.30 }   // deep clay
-        ]
-      },
-      light: {
-        composite: 'source-over',
-        blobs: [
-          { c: '206,102,66', a: 0.26 },
-          { c: '226,150,96', a: 0.22 },
-          { c: '166,88,58',  a: 0.18 }
-        ]
-      }
-    };
-
-    // per-blob drift parameters (frequency, phase, parallax pull)
-    const B = [
-      { fx: 0.21, fy: 0.16, px: 0.62, py: 0.30, pull: 0.16, r: 0.62, x: 0, y: 0 },
-      { fx: 0.13, fy: 0.24, px: 2.10, py: 4.20, pull: -0.10, r: 0.52, x: 0, y: 0 },
-      { fx: 0.17, fy: 0.11, px: 4.60, py: 1.30, pull: 0.07, r: 0.72, x: 0, y: 0 }
-    ];
+    const landmarks = [...document.querySelectorAll(
+      '.hero-name, .section-head h2, .case h3, .about-inner h2'
+    )];
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      w = hero.clientWidth;
-      h = hero.clientHeight;
+      w = window.innerWidth;
+      h = window.innerHeight;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    const draw = () => {
-      const pal = PALETTES[isLight() ? 'light' : 'dark'];
-      ctx.clearRect(0, 0, w, h);
-      ctx.globalCompositeOperation = pal.composite;
-
-      const mx = mouse.x === null ? w * 0.62 : mouse.x;
-      const my = mouse.y === null ? h * 0.40 : mouse.y;
-      const R = Math.min(w, h);
-
-      for (let i = 0; i < B.length; i++) {
-        const b = B[i];
-        // slow drift anchored to thirds of the hero, plus cursor lean
-        const ax = w * (0.30 + 0.40 * Math.sin(t * b.fx + b.px));
-        const ay = h * (0.35 + 0.30 * Math.sin(t * b.fy + b.py));
-        const tx = ax + (mx - w / 2) * b.pull;
-        const ty = ay + (my - h / 2) * b.pull;
-        b.x += (tx - b.x) * 0.045;
-        b.y += (ty - b.y) * 0.045;
-
-        const rad = R * b.r;
-        const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, rad);
-        const blob = pal.blobs[i];
-        g.addColorStop(0, 'rgba(' + blob.c + ',' + blob.a + ')');
-        g.addColorStop(0.55, 'rgba(' + blob.c + ',' + (blob.a * 0.35).toFixed(3) + ')');
-        g.addColorStop(1, 'rgba(' + blob.c + ',0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(b.x - rad, b.y - rad, rad * 2, rad * 2);
+    const activeRects = () => {
+      const out = [];
+      for (const el of landmarks) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 0 && r.bottom > -140 && r.top < h + 140) out.push(r);
       }
-      ctx.globalCompositeOperation = 'source-over';
+      return out;
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      const light = isLight();
+      const rects = activeRects();
+      const spacing = 30;
+      const rows = Math.ceil(h / spacing) + 2;
+      const step = Math.max(14, w / 110);
+      const baseA = light ? 0.16 : 0.12;
+
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        if (t - ripples[i].t0 > 2.2) ripples.splice(i, 1);
+      }
+
+      const hi = []; // highlighted segments: parted edges + cursor wake
+
+      for (let r = 0; r < rows; r++) {
+        const baseY = r * spacing;
+        const k = r / rows;
+        const col = light
+          ? (150 - 20 * k) + ',' + (76 - 14 * k) + ',' + (50 - 8 * k)
+          : (224 - 58 * k) + ',' + (140 - 52 * k) + ',' + (96 - 38 * k);
+
+        ctx.beginPath();
+        let prevX = 0, prevY = 0, prevBoost = 0;
+
+        for (let x = 0; x <= w + step; x += step) {
+          const wave =
+            Math.sin(x * 0.010 + t * 0.8 + r * 0.55) * 4.5 +
+            Math.sin(x * 0.021 - t * 0.55 + r * 1.3) * 2.8;
+          let y = baseY + wave;
+          let boost = 0;
+
+          // the water makes space for what matters
+          for (const rc of rects) {
+            const cx0 = rc.left - 110, cx1 = rc.right + 110;
+            if (x < cx0 || x > cx1) continue;
+            const fe = Math.min(1, Math.min(x - cx0, cx1 - x) / 110);
+            const fx = fe * fe * (3 - 2 * fe); // smoothstep: liquid ends, no facets
+            const cy = rc.top + rc.height / 2;
+            const H = rc.height / 2 + 46;
+            const dy = baseY - cy;
+            const ady = Math.abs(dy);
+            if (ady < H) {
+              const push = (1 - (ady / H) * (ady / H)) * H * 0.94 * fx;
+              y += (dy >= 0 ? 1 : -1) * push;
+              boost = Math.max(boost, Math.min(0.3, (push / H) * 0.34));
+            }
+          }
+
+          // cursor presses a soft hollow into the surface
+          const dxm = x - mouse.x, dym = y - mouse.y;
+          const dm2 = dxm * dxm + dym * dym;
+          if (dm2 < 90000) {
+            const fm = Math.exp(-dm2 / 16000);
+            const dm = Math.sqrt(dm2) + 0.001;
+            y += (dym / dm) * fm * 34;
+            boost = Math.max(boost, fm * 0.4);
+          }
+
+          // expanding ripple rings from movement
+          for (const rp of ripples) {
+            const age = t - rp.t0;
+            const rad = age * 230;
+            const dxr = x - rp.x, dyr = y - rp.y;
+            const dr = Math.sqrt(dxr * dxr + dyr * dyr) + 0.001;
+            const band = Math.exp(-((dr - rad) * (dr - rad)) / 1800);
+            const s = 20 * Math.exp(-age * 1.6) * band;
+            if (s > 0.3) {
+              y += (dyr / dr) * s;
+              boost = Math.max(boost, s * 0.012);
+            }
+          }
+
+          if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          if (boost > 0.05 && prevBoost > 0.02) {
+            hi.push({ x1: prevX, y1: prevY, x2: x, y2: y, a: boost });
+          }
+          prevX = x; prevY = y; prevBoost = boost;
+        }
+
+        ctx.strokeStyle = 'rgba(' + col + ',' + baseA + ')';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      if (hi.length) {
+        const hcol = light ? '150,74,48' : '238,170,122';
+        const buckets = [[0.05, 0.14, 0.2], [0.14, 0.26, 0.32], [0.26, 1.01, 0.5]];
+        for (const [lo, up, a] of buckets) {
+          ctx.beginPath();
+          let any = false;
+          for (const s of hi) {
+            if (s.a >= lo && s.a < up) {
+              ctx.moveTo(s.x1, s.y1);
+              ctx.lineTo(s.x2, s.y2);
+              any = true;
+            }
+          }
+          if (any) {
+            ctx.strokeStyle = 'rgba(' + hcol + ',' + a + ')';
+            ctx.lineWidth = 1.3;
+            ctx.stroke();
+          }
+        }
+      }
     };
 
     const loop = () => {
@@ -137,31 +203,32 @@
     };
 
     resize();
-    // settle blobs onto their anchors before first paint
-    for (let k = 0; k < 60; k++) { t += 0.016; draw(); }
 
     if (reducedMotion) {
-      window.addEventListener('resize', () => { resize(); draw(); });
+      draw();
+      const redraw = () => { resize(); draw(); };
+      window.addEventListener('resize', redraw);
+      window.addEventListener('scroll', () => draw(), { passive: true });
       window.addEventListener('themechange', () => draw());
     } else {
+      draw(); // first frame immediately, even if the tab starts hidden
       window.addEventListener('resize', resize);
       window.addEventListener('themechange', () => { if (!running) draw(); });
       window.addEventListener('pointermove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = e.clientX - rect.left;
-        mouse.y = e.clientY - rect.top;
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        const dx = mouse.x - lastRx, dy = mouse.y - lastRy;
+        if (t - lastRipple > 0.14 && dx * dx + dy * dy > 700 && ripples.length < 10) {
+          ripples.push({ x: mouse.x, y: mouse.y, t0: t });
+          lastRipple = t; lastRx = mouse.x; lastRy = mouse.y;
+        }
       }, { passive: true });
 
-      new IntersectionObserver(([entry]) => {
-        heroVisible = entry.isIntersecting;
-        setRunning(heroVisible && !document.hidden);
-      }, { threshold: 0.02 }).observe(hero);
-
       document.addEventListener('visibilitychange', () => {
-        setRunning(heroVisible && !document.hidden);
+        setRunning(!document.hidden);
       });
 
-      setRunning(true);
+      setRunning(!document.hidden);
     }
   }
 
