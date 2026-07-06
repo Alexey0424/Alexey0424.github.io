@@ -24,7 +24,7 @@
 </head>
 <body>
   <canvas id="water" aria-hidden="true"></canvas>
-  <a class="skip-link" href="#work">Skip to the work</a>
+  <a class="skip-link" href="#experience">Skip to content</a>
   <div class="cursor-aura" aria-hidden="true"></div>
 
   <header class="nav" id="top">
@@ -35,8 +35,8 @@
       <span>Alexey Velásquez</span>
     </a>
     <nav class="nav-links" aria-label="Sections">
-      <a href="#work">Work</a>
       <a href="#experience">Experience</a>
+      <a href="#work">Work</a>
       <a href="#stack">Stack</a>
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
@@ -61,42 +61,97 @@
           <span class="line load-rise" style="--l:1">Alexey</span>
           <span class="line load-rise" style="--l:2">Velásquez<em>.</em></span>
         </h1>
-        <p class="hero-role load-rise" style="--l:3">AI engineer and data scientist. I build AI that runs <em>where your data lives</em>: speech intelligence, grounded LLM agents, interpretable ML, and the automation that wires them into a business.</p>
+        <p class="hero-role load-rise" style="--l:3">AI engineer and data scientist. I build AI that runs <em>where your data lives</em>: speech intelligence, grounded LLM agents, interpretable ML.</p>
         <div class="hero-cta load-rise" style="--l:4">
-          <a class="btn btn-fire" href="#work" data-magnetic>See the work <span class="arrow" aria-hidden="true">&#8595;</span></a>
-          <a class="btn btn-ghost" href="#experience" data-magnetic>Experience <span class="arrow" aria-hidden="true">&#8595;</span></a>
+          <a class="btn btn-fire" href="#experience" data-magnetic>Experience <span class="arrow" aria-hidden="true">&#8595;</span></a>
+          <a class="btn btn-ghost" href="#work" data-magnetic>See the work <span class="arrow" aria-hidden="true">&#8595;</span></a>
         </div>
         <p class="hero-status mono load-rise" style="--l:5"><span class="pulse-dot" aria-hidden="true"></span> Open to AI / ML engineering roles</p>
       </div>
+    </section>
+
+    <!-- ============ EXPERIENCE ============ -->
+    <section class="experience" id="experience">
+      <div class="section-head reveal">
+        <h2>Experience</h2>
+        <p>The jobs behind the projects. Each role links to its code.</p>
+      </div>
+      <ol class="timeline">
+        <div class="beam" aria-hidden="true"><span class="orb"></span></div>
+
+        <li class="entry reveal">
+          <div class="entry-when mono">Aug 2023 · Aug 2025</div>
+          <div class="entry-body">
+            <h3>Machine Learning Engineer · EIA University</h3>
+            <p class="entry-where mono">Medellín, Colombia</p>
+            <ul class="entry-points">
+              <li>Turbine fault detection from vibration data: LightGBM and XGBoost, up to <strong class="mono">99.5%</strong> accuracy.</li>
+              <li>Model tournaments: Random Forest, SVM, autoencoders. PostgreSQL ingestion.</li>
+            </ul>
+            <a class="entry-link mono" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener">See it: Turbine FDD <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          </div>
+        </li>
+
+        <li class="entry reveal">
+          <div class="entry-when mono">Jun 2025 · Dec 2025</div>
+          <div class="entry-body">
+            <h3>Data Scientist · Luis Buys Homes</h3>
+            <p class="entry-where mono">Florida, US · remote</p>
+            <ul class="entry-points">
+              <li>BERT sentiment over first-contact sales calls, containerized with Docker.</li>
+              <li>PostgreSQL to Power BI dashboards the sales team ran their day on.</li>
+            </ul>
+            <a class="entry-link mono" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">See it: CRM suite <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          </div>
+        </li>
+
+        <li class="entry entry-edu reveal">
+          <div class="entry-when mono">Aug 2025</div>
+          <div class="entry-body">
+            <h3>Master's in Engineering, ML focus · EIA University</h3>
+            <p class="entry-where mono">1st Class · 94%</p>
+          </div>
+        </li>
+
+        <li class="entry reveal">
+          <div class="entry-when mono">Jan 2026 · Mar 2026</div>
+          <div class="entry-body">
+            <h3>Data Scientist · Cactus Home Offer</h3>
+            <p class="entry-where mono">Florida, US · remote</p>
+            <ul class="entry-points">
+              <li>Speech intelligence for sales calls: ASR, pattern detection, SHAP. Up to <strong class="mono">80%</strong> less manual review.</li>
+              <li>LLM KPI extraction in mixed Spanish and English, real time through n8n on Azure.</li>
+            </ul>
+            <a class="entry-link mono" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">See it: ORCA <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          </div>
+        </li>
+      </ol>
     </section>
 
     <!-- ============ FEATURED WORK ============ -->
     <section class="work" id="work">
       <div class="section-head reveal">
         <h2>Selected work</h2>
-        <p>Three systems built end to end and run for real: real users, real data, measured results.</p>
+        <p>Built end to end. Run for real.</p>
       </div>
 
       <!-- ORCA -->
       <article class="case reveal">
         <div class="case-text">
-          <p class="case-tag mono">orca-call-intelligence</p>
-          <h3>Sales calls in. Emotion-aware intelligence out. Nothing leaves the machine.</h3>
+          <h3>Call intelligence, fully self-hosted.</h3>
           <p class="case-story">
-            ORCA is a self-hosted pipeline that turns a raw call recording into a diarized transcript,
-            nine-class speech emotion, prosody analysis, extracted KPIs, a coached scorecard, and a
-            branded PDF report. A pgvector index makes every call searchable, and an n8n agent lets
-            the team chat with the whole archive.
+            A raw sales call goes in. Out come the transcript, the speaker emotions, the KPIs,
+            a coaching scorecard and a searchable archive you can chat with. Nothing leaves the machine.
           </p>
           <ul class="case-results">
-            <li><strong class="mono">5</strong> GPU-accelerated FastAPI services, launched with one <code>docker compose up</code></li>
-            <li><strong class="mono">~95%</strong> retrieval quality at <strong class="mono">20%</strong> of the storage, via Matryoshka-truncated embeddings</li>
-            <li>PII redacted with Presidio before anything reaches the database</li>
+            <li><strong class="mono">5</strong> GPU services, one <code>docker compose up</code></li>
+            <li><strong class="mono">~95%</strong> retrieval quality at <strong class="mono">20%</strong> of the storage</li>
+            <li>PII redacted before anything is stored</li>
           </ul>
           <ul class="chips" aria-label="Technologies">
             <li>Whisper</li><li>pyannote</li><li>emotion2vec</li><li>FastAPI</li><li>pgvector</li><li>Ollama</li><li>n8n</li><li>Docker</li><li>CUDA</li>
           </ul>
-          <a class="case-link" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">Read the code on GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="case-link" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
         </div>
         <div class="case-media stack">
           <img class="shot shot-back" src="assets/orca-report.png" alt="ORCA branded PDF call report with emotion timeline and coaching scorecard" loading="lazy" decoding="async" width="1000" height="1500">
@@ -107,23 +162,20 @@
       <!-- SCRAPER -->
       <article class="case case-flip reveal">
         <div class="case-text">
-          <p class="case-tag mono">llm-web-scraper</p>
-          <h3>A plain-English prompt in. A grounded spreadsheet out. One local model.</h3>
+          <h3>The scraper that can't make things up.</h3>
           <p class="case-story">
-            Describe the records you want and hand over a seed URL. A local LLM plans the crawl,
-            a best-first frontier explores the site, pages are classified by a heuristics-plus-LLM
-            blend, and every extracted value is checked against the page text before it reaches
-            your spreadsheet. The model is never allowed to invent data.
+            Plain English in, spreadsheet out. A local LLM plans the crawl, and every extracted
+            value is checked against the page before export.
           </p>
           <ul class="case-results">
-            <li><strong class="mono">151</strong> tests, all running offline with no LLM required</li>
-            <li>Schema-constrained decoding on every single LLM call</li>
-            <li>Live crawl UI with plan, progress, ETA and a per-call timeline</li>
+            <li><strong class="mono">151</strong> tests, fully offline</li>
+            <li>Schema-constrained decoding on every LLM call</li>
+            <li>Live crawl UI: plan, progress, ETA</li>
           </ul>
           <ul class="chips" aria-label="Technologies">
             <li>Ollama</li><li>Flask</li><li>SQLite</li><li>Docker</li><li>pytest</li><li>JSON-LD</li>
           </ul>
-          <a class="case-link" href="https://github.com/Alexey0424/llm-web-scraper" target="_blank" rel="noopener">Read the code on GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="case-link" href="https://github.com/Alexey0424/llm-web-scraper" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
         </div>
         <div class="case-media" data-spotlight>
           <img class="shot" src="assets/scraper-live.png" alt="LLM web scraper mid-crawl: live plan, progress, ETA and per-call timeline in the dark UI" loading="lazy" decoding="async" width="1440" height="1000">
@@ -133,23 +185,20 @@
       <!-- CRM SUITE -->
       <article class="case reveal">
         <div class="case-text">
-          <p class="case-tag mono">real-estate-crm-automation-suite</p>
-          <h3>The event-driven nervous system a US sales team runs their day on.</h3>
+          <h3>A sales team's nervous system.</h3>
           <p class="case-story">
-            Production integration suite for a real estate wholesaling company. CRM stage changes
-            become routed Slack notifications, cold leads from a Google Form are deduplicated and
-            assigned round-robin, and every completed call is mirrored onto the right contact with
-            its recording, AI summary, and sentiment.
+            Leads, calls and stage changes flow between the CRM, the phone system, Slack and
+            Google Forms with no human in the middle. Ran in production for a US real estate team.
           </p>
           <ul class="case-results">
-            <li><strong class="mono">3</strong> event-driven pipelines connecting Follow Up Boss, JustCall, Slack and Google Forms</li>
-            <li><strong class="mono">26</strong> passing tests over API-authored Make.com scenarios</li>
-            <li>Ran in production; sanitized so the engineering can be shown publicly</li>
+            <li><strong class="mono">3</strong> event-driven pipelines</li>
+            <li><strong class="mono">26</strong> passing tests</li>
+            <li>Sanitized so it can be shown publicly</li>
           </ul>
           <ul class="chips" aria-label="Technologies">
             <li>Make.com</li><li>n8n</li><li>Python</li><li>Node.js</li><li>Slack Block Kit</li><li>Apps Script</li><li>Webhooks</li>
           </ul>
-          <a class="case-link" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">Read the code on GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="case-link" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
         </div>
         <div class="case-media" data-spotlight>
           <svg class="flow-diagram" viewBox="0 0 560 380" role="img" aria-label="Event flow: CRM webhooks, Google Form and JustCall feed three scenarios that write to Slack and the CRM">
@@ -208,65 +257,40 @@
           </svg>
         </div>
       </article>
-    </section>
 
-    <!-- ============ EXPERIENCE ============ -->
-    <section class="experience" id="experience">
-      <div class="section-head reveal">
-        <h2>Experience</h2>
-        <p>The jobs behind the repos. Each role links to the code it produced.</p>
+      <!-- Applied ML, compact -->
+      <div class="ml-rows">
+        <a class="ml-row reveal" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener" data-spotlight>
+          <div class="ml-info">
+            <h3>Wind turbine damage detection</h3>
+            <p>6,000+ real vibration records, 1.5 years, five model families. SHAP-audited.</p>
+          </div>
+          <div class="ml-metric">
+            <span class="metric-num mono" data-count="0.973" data-decimals="3">0.973</span>
+            <span class="metric-label">AUC on hold-out</span>
+          </div>
+        </a>
+        <a class="ml-row reveal" href="https://github.com/Alexey0424/rural-school-risk-ml" target="_blank" rel="noopener" data-spotlight>
+          <div class="ml-info">
+            <h3>Rural school risk screening</h3>
+            <p>Four hazards, 11 algorithms, a Streamlit screening app. SHAP agrees with the physics.</p>
+          </div>
+          <div class="ml-metric">
+            <span class="metric-num mono" data-count="0.966" data-decimals="3">0.966</span>
+            <span class="metric-label">macro F1, cross-validated</span>
+          </div>
+        </a>
+        <a class="ml-row reveal" href="https://github.com/Alexey0424/pqr_sentiment_analysis" target="_blank" rel="noopener" data-spotlight>
+          <div class="ml-info">
+            <h3>Citizen complaint sentiment</h3>
+            <p>307 Spanish complaints, transformer sentiment, a desktop app that runs locally.</p>
+          </div>
+          <div class="ml-metric">
+            <span class="metric-num mono" data-count="68" data-suffix="%">68%</span>
+            <span class="metric-label">negative, zero positive</span>
+          </div>
+        </a>
       </div>
-      <ol class="timeline">
-        <div class="beam" aria-hidden="true"><span class="orb"></span></div>
-
-        <li class="entry reveal">
-          <div class="entry-when mono">Jan 2026 · Mar 2026</div>
-          <div class="entry-body">
-            <h3>Data Scientist · Cactus Home Offer</h3>
-            <p class="entry-where mono">Florida, US · remote</p>
-            <ul class="entry-points">
-              <li>Speech intelligence over real estate sales calls: Transformer ASR, pattern detection, SHAP interpretability. Cut manual call review time by up to <strong class="mono">80%</strong>.</li>
-              <li>Replaced keyword KPI logic with a context-aware LLM that reads mixed Spanish and English transcripts for objections, buying signals, rapport and outcome.</li>
-              <li>CRM-triggered real-time inference through n8n, on Azure with Databricks integrations.</li>
-            </ul>
-            <a class="entry-link mono" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">orca-call-intelligence <span class="arrow" aria-hidden="true">&#8599;</span></a>
-          </div>
-        </li>
-
-        <li class="entry reveal">
-          <div class="entry-when mono">Jun 2025 · Dec 2025</div>
-          <div class="entry-body">
-            <h3>Data Scientist · Luis Buys Homes</h3>
-            <p class="entry-where mono">Florida, US · remote</p>
-            <ul class="entry-points">
-              <li>End-to-end NLP and sentiment pipeline (BERT) over first-contact sales calls, containerized with Docker, surfacing the patterns behind successful deals.</li>
-              <li>Shipped a standalone analysis GUI plus n8n trend tracking, and wired PostgreSQL outputs into Power BI dashboards the sales team ran on.</li>
-            </ul>
-            <a class="entry-link mono" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">real-estate-crm-automation-suite <span class="arrow" aria-hidden="true">&#8599;</span></a>
-          </div>
-        </li>
-
-        <li class="entry reveal">
-          <div class="entry-when mono">Aug 2023 · Aug 2025</div>
-          <div class="entry-body">
-            <h3>Machine Learning Engineer · EIA University</h3>
-            <p class="entry-where mono">Medellín, Colombia</p>
-            <ul class="entry-points">
-              <li>Fault detection for structural health monitoring of wind turbines: LightGBM and XGBoost over vibration data, up to <strong class="mono">99.5%</strong> detection accuracy.</li>
-              <li>Model tournaments across Random Forest, SVM, LightGBM and autoencoders; PostgreSQL for continuous large-scale monitoring ingestion.</li>
-            </ul>
-            <a class="entry-link mono" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener">wind-turbine-damage-detection-ml <span class="arrow" aria-hidden="true">&#8599;</span></a>
-          </div>
-        </li>
-
-        <li class="entry entry-edu reveal">
-          <div class="entry-when mono">Aug 2025</div>
-          <div class="entry-body">
-            <h3>Master's in Engineering, ML focus · EIA University</h3>
-            <p class="entry-where mono">1st Class · 94%</p>
-          </div>
-        </li>
-      </ol>
     </section>
 
     <!-- ============ TECH STACK ============ -->
@@ -299,7 +323,7 @@
           <div class="tiles">
             <button type="button" class="tile" data-where="ASR at Cactus and in ORCA, word-level timestamps">Whisper</button>
             <button type="button" class="tile" data-where="Sentiment over sales calls at Luis Buys Homes · Spanish robertuito on PQR">BERT</button>
-            <button type="button" class="tile" data-where="Local KPI extraction and coaching in ORCA · crawl planning in llm-web-scraper">LLMs · Ollama</button>
+            <button type="button" class="tile" data-where="Local KPI extraction and coaching in ORCA · crawl planning in the scraper">LLMs · Ollama</button>
             <button type="button" class="tile" data-where="ORCA semantic call archive: pgvector HNSW + n8n agent">RAG</button>
             <button type="button" class="tile" data-where="9-class speech emotion in ORCA">emotion2vec</button>
           </div>
@@ -317,7 +341,7 @@
         <div class="sgroup">
           <h3>Infrastructure</h3>
           <div class="tiles">
-            <button type="button" class="tile" data-where="ORCA compose stack · LBH pipeline · llm-web-scraper">Docker</button>
+            <button type="button" class="tile" data-where="ORCA compose stack · LBH pipeline · the scraper">Docker</button>
             <button type="button" class="tile" data-where="pgvector search in ORCA · Power BI feeds · EIA ingestion">PostgreSQL</button>
             <button type="button" class="tile" data-where="The 5 ORCA microservices">FastAPI</button>
             <button type="button" class="tile" data-where="Hosted inference for the Cactus pipeline">Azure</button>
@@ -341,62 +365,18 @@
       <p class="stack-readout mono" aria-live="polite">&#9670; Hover a technology to see where it earned its place.</p>
     </section>
 
-    <!-- ============ APPLIED ML ============ -->
-    <section class="ml" id="ml">
-      <div class="section-head reveal">
-        <h2>Applied ML, measured honestly</h2>
-        <p>Research-grade projects with real data, cross-validated results and SHAP on the table.</p>
-      </div>
-      <div class="ml-rows">
-        <a class="ml-row reveal" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener" data-spotlight>
-          <div class="ml-info">
-            <h3>Wind turbine damage detection</h3>
-            <p>Structural damage detection from vibration signals: 6,000+ real records collected over 1.5 years
-               on a 14-meter turbine, features via Frequency Domain Decomposition, five model families in tournament.</p>
-          </div>
-          <div class="ml-metric">
-            <span class="metric-num mono" data-count="0.973" data-decimals="3">0.973</span>
-            <span class="metric-label">AUC, damage detection, <br>LightGBM on hold-out</span>
-          </div>
-        </a>
-        <a class="ml-row reveal" href="https://github.com/Alexey0424/rural-school-risk-ml" target="_blank" rel="noopener" data-spotlight>
-          <div class="ml-info">
-            <h3>Rural school risk screening</h3>
-            <p>Interpretable screening of rural schools against four natural hazards. An 11-algorithm tournament;
-               the SHAP signal concentrates where the failure physics says it should. Ships as a Streamlit app.</p>
-          </div>
-          <div class="ml-metric">
-            <span class="metric-num mono" data-count="0.966" data-decimals="3">0.966</span>
-            <span class="metric-label">macro F1, best hazard, <br>cross-validated</span>
-          </div>
-        </a>
-        <a class="ml-row reveal" href="https://github.com/Alexey0424/pqr_sentiment_analysis" target="_blank" rel="noopener" data-spotlight>
-          <div class="ml-info">
-            <h3>Citizen complaint sentiment (Spanish)</h3>
-            <p>Sentiment and emotion on 307 public-utility complaints with Spanish transformers, validated against
-               multilingual BERT. A tested package plus a desktop app that runs inference locally.</p>
-          </div>
-          <div class="ml-metric">
-            <span class="metric-num mono" data-count="68" data-suffix="%">68%</span>
-            <span class="metric-label">of records negative, <br>zero positive: the finding</span>
-          </div>
-        </a>
-      </div>
-    </section>
-
     <!-- ============ ABOUT ============ -->
     <section class="about" id="about">
       <div class="about-inner reveal">
         <h2>About</h2>
         <p class="about-lede">
           I'm Alexey David Velásquez Betancurt, based in Medellín, Colombia. Master's in
-          Engineering with a machine learning focus, 1st Class (94%), and two years shipping
-          data science remotely for US companies.
+          Engineering, ML focus, 1st Class (94%). Two years shipping data science remotely
+          for US companies.
         </p>
         <p>
-          I like systems I can hold end to end: the model, the pipeline around it, the
-          infrastructure it runs on, and the report a human actually reads. If it can run on
-          your own hardware, I will make it run on your own hardware. Bilingual: Spanish and English.
+          I like systems I can hold end to end. If it can run on your own hardware,
+          I will make it run there. Spanish and English.
         </p>
       </div>
     </section>
@@ -408,8 +388,8 @@
         <p>Looking for an AI engineer who ships whole systems? My inbox is open.</p>
         <div class="contact-cta">
           <a class="btn btn-fire btn-big" href="mailto:alexeyvb135@gmail.com" data-magnetic>Email me <span class="arrow" aria-hidden="true">&#8599;</span></a>
-          <a class="btn btn-ghost btn-big" href="https://www.linkedin.com/in/alexey-ve/" target="_blank" rel="noopener" data-magnetic>LinkedIn <span class="arrow" aria-hidden="true">&#8599;</span></a>
-          <a class="btn btn-ghost btn-big" href="https://github.com/Alexey0424" target="_blank" rel="noopener" data-magnetic>GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="btn btn-ghost btn-big" href="https://www.linkedin.com/in/alexey-ve/" target="_blank" rel="noopener">LinkedIn <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="btn btn-ghost btn-big" href="https://github.com/Alexey0424" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
         </div>
         <p class="contact-mail mono">alexeyvb135@gmail.com</p>
       </div>

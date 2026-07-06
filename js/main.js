@@ -88,10 +88,19 @@
       ctx.clearRect(0, 0, w, h);
       const light = isLight();
       const rects = activeRects();
-      const spacing = 30;
+      const spacing = 34;
       const rows = Math.ceil(h / spacing) + 2;
       const step = Math.max(14, w / 110);
-      const baseA = light ? 0.16 : 0.12;
+      const baseA = light ? 0.17 : 0.13;
+
+      // the landmark closest to the focal line is the one being read:
+      // the water will ping it
+      let focus = null, focusDist = 1e9;
+      const focal = h * 0.42;
+      for (const rc of rects) {
+        const d = Math.abs(rc.top + rc.height / 2 - focal);
+        if (d < focusDist) { focusDist = d; focus = rc; }
+      }
 
       for (let i = ripples.length - 1; i >= 0; i--) {
         if (t - ripples[i].t0 > 2.2) ripples.splice(i, 1);
@@ -111,8 +120,9 @@
 
         for (let x = 0; x <= w + step; x += step) {
           const wave =
-            Math.sin(x * 0.010 + t * 0.8 + r * 0.55) * 4.5 +
-            Math.sin(x * 0.021 - t * 0.55 + r * 1.3) * 2.8;
+            Math.sin(x * 0.0042 + t * 0.32 + r * 0.9) * 6.5 +
+            Math.sin(x * 0.011 + t * 0.62 + r * 0.55) * 4.5 +
+            Math.sin(x * 0.023 - t * 0.5 + r * 1.3) * 2.2;
           let y = baseY + wave;
           let boost = 0;
 
@@ -165,7 +175,7 @@
         }
 
         ctx.strokeStyle = 'rgba(' + col + ',' + baseA + ')';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.1;
         ctx.stroke();
       }
 
@@ -185,6 +195,39 @@
           if (any) {
             ctx.strokeStyle = 'rgba(' + hcol + ',' + a + ')';
             ctx.lineWidth = 1.3;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // sonar — the water pings whatever you are reading:
+      // rings ripple outward from the focused landmark and fade
+      if (focus) {
+        const fade = 1 - Math.min(1, focusDist / (h * 0.5));
+        if (fade > 0.03) {
+          const rcol = light ? '150,74,48' : '238,170,122';
+          const ring = (x0, y0, ww, hh, rad) => {
+            if (ctx.roundRect) { ctx.roundRect(x0, y0, ww, hh, rad); return; }
+            ctx.moveTo(x0 + rad, y0);
+            ctx.arcTo(x0 + ww, y0, x0 + ww, y0 + hh, rad);
+            ctx.arcTo(x0 + ww, y0 + hh, x0, y0 + hh, rad);
+            ctx.arcTo(x0, y0 + hh, x0, y0, rad);
+            ctx.arcTo(x0, y0, x0 + ww, y0, rad);
+            ctx.closePath();
+          };
+          for (let i = 0; i < 3; i++) {
+            const ph = (t / 2.6 + i / 3) % 1;
+            const pad = 18 + ph * 74;
+            const a = (1 - ph) * (1 - ph) * 0.5 * fade;
+            if (a < 0.02) continue;
+            ctx.beginPath();
+            ring(
+              focus.left - pad, focus.top - pad,
+              focus.width + pad * 2, focus.height + pad * 2,
+              Math.min(26 + ph * 30, (focus.height + pad * 2) / 2)
+            );
+            ctx.strokeStyle = 'rgba(' + rcol + ',' + a.toFixed(3) + ')';
+            ctx.lineWidth = 1.4;
             ctx.stroke();
           }
         }
