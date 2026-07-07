@@ -306,18 +306,30 @@
       a.node = n;
     }
 
+    // the lamp: a soft radial light the head carries as it falls
+    const defs = document.createElementNS(NS, 'defs');
+    const grad = document.createElementNS(NS, 'radialGradient');
+    grad.setAttribute('id', 'headGrad');
+    [['0%', 'rgba(238,170,122,0.5)'], ['38%', 'rgba(217,111,71,0.22)'], ['100%', 'rgba(217,111,71,0)']]
+      .forEach(([o, c]) => {
+        const st = document.createElementNS(NS, 'stop');
+        st.setAttribute('offset', o);
+        st.setAttribute('stop-color', c);
+        grad.appendChild(st);
+      });
+    defs.appendChild(grad);
+    svg.appendChild(defs);
+
     headHalo = document.createElementNS(NS, 'circle');
-    cAttr(headHalo, { r: 17, class: 'spine-halo' });
+    cAttr(headHalo, { r: 78, fill: 'url(#headGrad)' });
     svg.appendChild(headHalo);
     headDot = document.createElementNS(NS, 'circle');
-    cAttr(headDot, { r: 5, class: 'spine-head' });
+    cAttr(headDot, { r: 5.5, class: 'spine-head' });
     svg.appendChild(headDot);
   };
 
   const trainer = document.querySelector('.trainer');
   const trTop = trainer && trainer.querySelector('.tr-top');
-  const trFill = trainer && trainer.querySelector('.tr-fill');
-  const trPct = trainer && trainer.querySelector('.tr-pct');
   let trLast = '';
 
   const lightAt = (s) => {
@@ -343,31 +355,24 @@
       }
     }
 
-    // the training run: scroll = epochs, loss falls, accuracy climbs.
-    // The HUD rides beside the light's head.
+    // the epoch tag rides quietly behind the content, next to the lamp
     if (trainer) {
       if (!reducedMotion) {
         trainer.classList.add('float');
-        const tw = trainer.offsetWidth || 280;
-        const th = trainer.offsetHeight || 64;
+        const tw = trainer.offsetWidth || 110;
         const vw = window.innerWidth, vh = window.innerHeight;
-        let vx = p.x + 26;
-        if (vx + tw > vw - 10) vx = p.x - tw - 26;      // flip to the left near the edge
-        vx = Math.max(10, vx);
-        let vy = p.y - window.scrollY + 14;
-        vy = Math.max(70, Math.min(vh - th - 10, vy));
+        let vx = p.x + 20;
+        if (vx + tw > vw - 8) vx = p.x - tw - 20;
+        vx = Math.max(8, vx);
+        let vy = p.y - window.scrollY - 34;
+        vy = Math.max(66, Math.min(vh - 44, vy));
         trainer.style.transform = 'translate3d(' + Math.round(vx) + 'px,' + Math.round(vy) + 'px,0)';
       }
-      const pr = Math.min(1, s / totalLen);
-      const done = pr >= 0.99;
+      const done = s / totalLen >= 0.99;
       const line = done
-        ? 'training complete · model converged <b>✓</b>'
-        : 'epoch <b>' + String(passed).padStart(2, '0') + '/' + anchors.length +
-          '</b> · loss <b>' + (2.303 * Math.exp(-5 * pr)).toFixed(3) +
-          '</b> · acc <b>' + (0.1 + 0.899 * (1 - Math.exp(-3 * pr)) / (1 - Math.exp(-3))).toFixed(3) + '</b>';
+        ? 'converged <b>✓</b>'
+        : 'epoch <b>' + String(passed).padStart(2, '0') + '/' + anchors.length + '</b>';
       if (line !== trLast) { trTop.innerHTML = line; trLast = line; }
-      trFill.style.width = (pr * 100).toFixed(1) + '%';
-      trPct.textContent = Math.round(pr * 100) + '%';
       trainer.classList.toggle('done', done);
     }
   };
