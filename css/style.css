@@ -19,6 +19,14 @@
   --btn-ink: var(--terra-ink);
   --spot-alpha: 0.12;
   --haze: oklch(21% 0.035 42);
+  /* 2.5D flow panels — elevation that reads in the dark */
+  --panel-top: oklch(25% 0.026 44);
+  --panel-bot: oklch(18% 0.02 40);
+  --panel-shadow: 0 44px 76px -34px oklch(4% 0.005 40 / 0.95),
+                  0 18px 44px -22px oklch(68% 0.15 40 / 0.16),
+                  inset 0 1px 0 oklch(72% 0.04 55 / 0.16);
+  --node-bg: oklch(27.5% 0.028 43);
+  --node-line: oklch(48% 0.055 45 / 0.8);
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --font-mono: "Martian Mono", ui-monospace, monospace;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -45,6 +53,12 @@
   --btn-ink: oklch(97.5% 0.008 60);
   --spot-alpha: 0.1;
   --haze: oklch(89% 0.03 50);
+  --panel-top: oklch(99% 0.004 55);
+  --panel-bot: oklch(93.5% 0.015 55);
+  --panel-shadow: 0 34px 60px -34px oklch(35% 0.06 40 / 0.5),
+                  inset 0 1px 0 oklch(100% 0 0 / 0.9);
+  --node-bg: var(--surface);
+  --node-line: var(--line-strong);
   color-scheme: light;
 }
 
@@ -165,14 +179,14 @@ body.aura-on .cursor-aura { opacity: 1; }
    -------------------------------------------------------------------------- */
 .trainer {
   position: fixed;
-  top: clamp(15rem, 33vh, 21rem);
-  right: clamp(2.5rem, 8vw, 9rem);
+  top: clamp(13rem, 30vh, 19rem);
+  right: clamp(3rem, 9vw, 12rem);
   z-index: 80;
   display: grid;
-  gap: 0.5em;
-  min-width: 15.5rem;
-  padding: 1.15em 1.35em;
-  font-size: 0.8rem;
+  gap: 0.65em;
+  min-width: 19.5rem;
+  padding: 1.5em 1.7em;
+  font-size: 0.98rem;
   line-height: 1.4;
   color: var(--ink-dim);
   background: color-mix(in oklab, var(--bg-deep) 55%, transparent);
@@ -351,11 +365,15 @@ main, .footer { position: relative; z-index: 1; }
   fill: var(--terra-hot);
   filter: drop-shadow(0 0 12px oklch(77% 0.13 55 / 1));
 }
-/* mosaic — translucent tesserae that light up behind key text */
-.mos-layer { opacity: 0.85; }
-:root[data-theme="light"] .mos-layer { opacity: 0.5; }
-.mos { fill: var(--terra); opacity: 0; }
-.mos.hot { fill: var(--terra-hot); }
+/* mandala — thin terra linework that blooms behind key text; the halo
+   embraces the words while they stay crisp on the layer above */
+.man-layer { opacity: 0.9; }
+:root[data-theme="light"] .man-layer { opacity: 0.62; }
+.man-line { fill: none; stroke: var(--terra); stroke-width: 1; }
+.man-gem { fill: var(--terra); }
+.mandala { transform-box: fill-box; transform-origin: center; }
+.mandala.spin { animation: man-spin 150s linear infinite; }
+@keyframes man-spin { to { transform: rotate(360deg); } }
 .spine-glow { text-shadow: 0 0 28px oklch(68% 0.15 40 / 0.45); }
 :root[data-theme="light"] .spine-glow { text-shadow: 0 0 26px oklch(55% 0.15 40 / 0.35); }
 .hero-inner {
@@ -585,18 +603,30 @@ html.js .reveal.in { opacity: 1; transform: none; }
   border-radius: 16px;
   background:
     radial-gradient(28rem 20rem at 50% 0%, var(--haze), transparent 72%),
-    color-mix(in oklab, var(--bg-deep) 70%, transparent);
-  box-shadow: 0 34px 60px -30px oklch(8% 0.01 40 / 0.75);
+    linear-gradient(168deg, var(--panel-top), var(--panel-bot));
+  box-shadow: var(--panel-shadow);
   padding: clamp(0.75rem, 2vw, 1.5rem);
 }
 .case-flip .case-media.flow { transform: perspective(1100px) rotateX(5deg) rotateY(5deg); }
-:root[data-theme="light"] .case-media.flow {
-  box-shadow: 0 34px 60px -34px oklch(35% 0.06 40 / 0.5);
+/* specular sheen — a soft light that travels with the cursor, so the
+   tilt reads as a surface catching light */
+.case-media.flow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(22rem circle at var(--fx, 62%) var(--fy, 10%),
+    oklch(85% 0.05 55 / 0.08), transparent 62%);
+  pointer-events: none;
+}
+:root[data-theme="light"] .case-media.flow::after {
+  background: radial-gradient(22rem circle at var(--fx, 62%) var(--fy, 10%),
+    oklch(100% 0 0 / 0.35), transparent 62%);
 }
 .fg { width: 100%; height: auto; display: block; }
 .fg-node rect {
-  fill: var(--surface);
-  stroke: var(--line-strong);
+  fill: var(--node-bg);
+  stroke: var(--node-line);
   stroke-width: 1.2;
   transition: fill 0.45s ease, stroke 0.45s ease;
 }
@@ -1019,6 +1049,7 @@ html.js .reveal.in { opacity: 1; transform: none; }
   .lumen { display: none; }
   .section-head h2::before, .about-inner h2::before, .case h3::before { transition: none; }
   .trainer { transition: none; }
+  .mandala.spin { animation: none; }
   .case-media.flow, .case-flip .case-media.flow { transform: none; }
   .btn, .chips li, .tile, .arrow, .theme-toggle { transition: none; }
   .cursor-aura { display: none; }

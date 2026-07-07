@@ -168,6 +168,9 @@
         const r = el.getBoundingClientRect();
         tx = rx0 + (0.5 - (e.clientY - r.top) / r.height) * 9;
         ty = ry0 + ((e.clientX - r.left) / r.width - 0.5) * 11;
+        // specular sheen follows the cursor across the panel
+        el.style.setProperty('--fx', (e.clientX - r.left).toFixed(0) + 'px');
+        el.style.setProperty('--fy', (e.clientY - r.top).toFixed(0) + 'px');
         kick();
       }, { passive: true });
       el.addEventListener('pointerleave', () => { tx = rx0; ty = ry0; kick(); });
@@ -194,7 +197,7 @@
   let anchors = [];      // flow-graph stages: {el, x, y, s, edge, packet, zone}
   let zones = [];        // content that ignites as the reading line passes
   let caseZones = [];
-  let patches = [];      // mosaic patches behind key text
+  let mands = [];        // mandalas that bloom behind key text
   let totalLen = 0;
   let samples = [];      // [{s, y}] for scroll → length lookup
 
@@ -241,9 +244,6 @@
     return out;
   };
 
-  // mosaic — translucent tesserae behind key text, lit tile by tile in
-  // reading order as the run advances, from a clear start to a clear end
-  const MOS_T = 11, MOS_G = 7;
   // block-level headings report container width; measure the text itself
   const textRect = (el) => {
     const rg = document.createRange();
@@ -251,54 +251,102 @@
     const r = rg.getBoundingClientRect();
     return (r && r.width) ? r : el.getBoundingClientRect();
   };
-  const buildMosaics = () => {
-    patches = [];
-    const g = document.createElementNS(NS, 'g');
-    g.setAttribute('class', 'mos-layer');
-    const sy = window.scrollY;
-    const docW = document.documentElement.clientWidth;
-    document.querySelectorAll('.section-head h2, .about-inner h2, .case h3, .entry h3')
-      .forEach((el) => {
-        const r = textRect(el);
-        const ext = el.closest('.entry') ? 110 : 230;
-        const x0 = Math.max(14, r.left - 16);
-        const y0 = r.top + sy - 12;
-        const w = Math.min(r.width + ext, docW - x0 - 24);
-        const h = r.height + 22;
-        const cols = Math.max(4, Math.floor(w / (MOS_T + MOS_G)));
-        const rows = Math.max(2, Math.round(h / (MOS_T + MOS_G)));
-        const tiles = [];
-        for (let ri = 0; ri < rows; ri++) {
-          for (let ci = 0; ci < cols; ci++) {
-            const t = document.createElementNS(NS, 'rect');
-            const seed = (ri * 31 + ci * 17 + cols) % 9;
-            cAttr(t, {
-              x: x0 + ci * (MOS_T + MOS_G),
-              y: y0 + ri * (MOS_T + MOS_G),
-              width: MOS_T, height: MOS_T, rx: 2.5,
-              class: seed === 7 ? 'mos hot' : 'mos'
-            });
-            t.__v = 0.07 + (seed / 9) * 0.2;   // per-tile peak opacity
-            g.appendChild(t);
-            tiles.push(t);
-          }
-        }
-        patches.push({ tiles, top: y0, bottom: y0 + rows * (MOS_T + MOS_G), last: -1 });
-      });
-    svg.appendChild(g);
+
+  // mandala — thin terra linework centered behind key text. As the light
+  // reaches its section it blooms ring by ring from the middle outward,
+  // and a warm halo embraces the text (the text sits on the layer above,
+  // so it stays perfectly crisp)
+  const manEl = (name, attrs, cls) => {
+    const n = document.createElementNS(NS, name);
+    cAttr(n, attrs);
+    if (cls) n.setAttribute('class', cls);
+    return n;
   };
 
-  const paintMosaics = (focusY) => {
-    for (const pz of patches) {
-      const p = Math.max(0, Math.min(1,
-        (focusY - (pz.top - 60)) / (pz.bottom + 140 - (pz.top - 60))));
-      if (Math.abs(p - pz.last) < 0.003) continue;
-      pz.last = p;
-      const front = p * (pz.tiles.length + 5);
-      for (let i = 0; i < pz.tiles.length; i++) {
-        const f = Math.max(0, Math.min(1, (front - i) / 5));
-        pz.tiles[i].style.opacity = (f * pz.tiles[i].__v).toFixed(3);
+  const buildMandalas = () => {
+    mands = [];
+    const layer = manEl('g', {}, 'man-layer');
+    const sy = window.scrollY;
+    const cap = document.documentElement.clientWidth * 0.38;
+    const targets = [];
+    const hero = document.querySelector('.hero-name');
+    if (hero) targets.push({ el: hero, R: 290 });
+    document.querySelectorAll('.section-head h2, .about-inner h2')
+      .forEach((el) => targets.push({ el, R: 195 }));
+    document.querySelectorAll('.case h3')
+      .forEach((el) => targets.push({ el, R: 165 }));
+
+    targets.forEach(({ el, R }) => {
+      R = Math.min(R, cap);
+      const tr = textRect(el);
+      const cx = tr.left + tr.width / 2;
+      const cy = tr.top + sy + tr.height / 2;
+      const g = manEl('g', {}, 'mandala');
+      const add = (node, o, v) => {
+        node.__o = o; node.__v = v;
+        node.style.opacity = 0;
+        g.appendChild(node);
+      };
+
+      // 0 · halo — the warm light that embraces the text
+      add(manEl('circle', { cx, cy, r: R * 0.92, fill: 'url(#manGrad)' }), 0, 0.85);
+      // 1 · inner ring
+      add(manEl('circle', { cx, cy, r: R * 0.16 }, 'man-line'), 1, 0.4);
+      // 2 · spokes
+      for (let i = 0; i < 16; i++) {
+        const a = (Math.PI * 2 * i) / 16;
+        add(manEl('line', {
+          x1: cx + Math.cos(a) * R * 0.24, y1: cy + Math.sin(a) * R * 0.24,
+          x2: cx + Math.cos(a) * R * 0.42, y2: cy + Math.sin(a) * R * 0.42
+        }, 'man-line'), 2, 0.3);
       }
+      // 3 · mid ring
+      add(manEl('circle', { cx, cy, r: R * 0.5 }, 'man-line'), 3, 0.42);
+      // 4 · petals
+      for (let i = 0; i < 12; i++) {
+        const a = (Math.PI * 2 * i) / 12 + Math.PI / 12;
+        const bx = cx + Math.cos(a) * R * 0.5, by = cy + Math.sin(a) * R * 0.5;
+        const tx = cx + Math.cos(a) * R * 0.76, ty = cy + Math.sin(a) * R * 0.76;
+        const nx = Math.cos(a + Math.PI / 2) * R * 0.09;
+        const ny = Math.sin(a + Math.PI / 2) * R * 0.09;
+        const mx = (bx + tx) / 2, my = (by + ty) / 2;
+        add(manEl('path', {
+          d: 'M ' + bx + ' ' + by +
+             ' Q ' + (mx + nx) + ' ' + (my + ny) + ' ' + tx + ' ' + ty +
+             ' Q ' + (mx - nx) + ' ' + (my - ny) + ' ' + bx + ' ' + by + ' Z'
+        }, 'man-line'), 4, 0.35);
+      }
+      // 5 · beaded ring
+      add(manEl('circle', { cx, cy, r: R * 0.84, 'stroke-dasharray': '2 10' }, 'man-line'), 5, 0.45);
+      // 6 · diamond gems
+      for (let i = 0; i < 8; i++) {
+        const a = (Math.PI * 2 * i) / 8;
+        const dx = cx + Math.cos(a) * R * 0.92, dy = cy + Math.sin(a) * R * 0.92;
+        add(manEl('rect', {
+          x: dx - 5, y: dy - 5, width: 10, height: 10,
+          transform: 'rotate(45 ' + dx + ' ' + dy + ')'
+        }, 'man-gem'), 6, 0.6);
+      }
+      // 7 · outer ring
+      add(manEl('circle', { cx, cy, r: R }, 'man-line'), 7, 0.3);
+
+      layer.appendChild(g);
+      mands.push({ g, els: [...g.children], top: cy - R - 90, bottom: cy + R * 0.55, last: -1 });
+    });
+    svg.appendChild(layer);
+  };
+
+  const paintMandalas = (focusY) => {
+    for (const m of mands) {
+      const p = Math.max(0, Math.min(1, (focusY - m.top) / (m.bottom - m.top)));
+      if (Math.abs(p - m.last) < 0.003) continue;
+      m.last = p;
+      const front = p * 8.6;
+      for (const el of m.els) {
+        const f = Math.max(0, Math.min(1, front - el.__o));
+        el.style.opacity = (f * el.__v).toFixed(3);
+      }
+      m.g.classList.toggle('spin', !reducedMotion && p >= 0.7);
     }
   };
 
@@ -315,7 +363,7 @@
     const docH = document.documentElement.scrollHeight;
     cAttr(svg, { width: docW, height: docH, viewBox: '0 0 ' + docW + ' ' + docH });
     svg.style.height = docH + 'px';
-    buildMosaics();
+    buildMandalas();
 
     const contact = document.querySelector('.contact');
     const endY = contact
@@ -402,6 +450,17 @@
         grad.appendChild(st);
       });
     defs.appendChild(grad);
+    // the mandala halo — a wider, quieter warmth
+    const mgrad = document.createElementNS(NS, 'radialGradient');
+    mgrad.setAttribute('id', 'manGrad');
+    [['0%', 'rgba(238,170,122,0.17)'], ['55%', 'rgba(217,111,71,0.07)'], ['100%', 'rgba(217,111,71,0)']]
+      .forEach(([o, c]) => {
+        const st = document.createElementNS(NS, 'stop');
+        st.setAttribute('offset', o);
+        st.setAttribute('stop-color', c);
+        mgrad.appendChild(st);
+      });
+    defs.appendChild(mgrad);
     svg.appendChild(defs);
 
     headHalo = document.createElementNS(NS, 'circle');
@@ -446,7 +505,7 @@
     if (!reducedMotion) {
       const focusY = window.scrollY + window.innerHeight * 0.45;
       for (const z of zones) z.el.classList.toggle(z.cls, z.y <= focusY + 2);
-      paintMosaics(focusY);
+      paintMandalas(focusY);
     }
 
     // the console tracks the run: epoch, loss, accuracy, progress
@@ -501,7 +560,7 @@
     if (!totalLen) return;
     lightAt(totalLen);
     zones.forEach((z) => z.el.classList.add(z.cls));
-    paintMosaics(1e9);
+    paintMandalas(1e9);
     if (trainer) trainer.classList.add('docked');
     if (headDot) { headDot.style.display = 'none'; headHalo.style.display = 'none'; }
     lumen.style.display = 'none';
