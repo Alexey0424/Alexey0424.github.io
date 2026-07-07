@@ -1,5 +1,5 @@
 /* Alexey Velásquez · portfolio interactions
-   terra aurora · theme toggle · timeline beam · stack readout
+   falling light spine · node graph · theme toggle · tactile titles
    cursor aura · magnetic buttons · spotlight · reveals · counters */
 
 (() => {
@@ -25,7 +25,6 @@
       themeBtn.setAttribute('aria-pressed', String(light));
       themeBtn.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
     }
-    window.dispatchEvent(new CustomEvent('themechange'));
   };
 
   if (themeBtn) {
@@ -45,234 +44,280 @@
   applyThemeExtras();
 
   /* ------------------------------------------------------------------
-     Terra water — a full-page water surface of flowing contour lines.
-     It ripples with the cursor, and as key content scrolls into view
-     the water parts around it, compressing into dense rows at the
-     edges of the space it leaves behind.
+     The falling light — one luminous thread runs the whole page,
+     passing through every node: the name, each job, each project,
+     each section. Scrolling makes the light fall along it, igniting
+     nodes as it passes.
      ------------------------------------------------------------------ */
-  const canvas = document.getElementById('water');
-  if (canvas) {
-    const ctx = canvas.getContext('2d');
-    let w = 0, h = 0, dpr = 1;
-    let running = false;
-    let rafId = 0;
-    let t = 0;
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.id = 'spine';
+  svg.setAttribute('aria-hidden', 'true');
+  document.body.prepend(svg);
 
-    const mouse = { x: -9999, y: -9999 };
-    const ripples = [];
-    let lastRipple = 0, lastRx = 0, lastRy = 0;
+  let basePath, litPath, headDot, headHalo;
+  let anchors = [];      // {el, x, y, s, node, kind}
+  let totalLen = 0;
+  let samples = [];      // [{s, y}] for scroll → length lookup
 
-    const landmarks = [...document.querySelectorAll(
-      '.hero-name, .section-head h2, .case h3, .about-inner h2'
-    )];
+  const cAttr = (el, attrs) => { for (const k in attrs) el.setAttribute(k, attrs[k]); };
 
-    const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
+  const collectAnchors = () => {
+    const sy = window.scrollY;
+    const rail = window.innerWidth <= 900;
+    const out = [];
+    const push = (el, x, y, kind) => out.push({ el, x: Math.max(20, x), y, kind });
 
-    const activeRects = () => {
-      const out = [];
-      for (const el of landmarks) {
-        const r = el.getBoundingClientRect();
-        if (r.width > 0 && r.bottom > -140 && r.top < h + 140) out.push(r);
-      }
-      return out;
-    };
-
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      const light = isLight();
-      const rects = activeRects();
-      const spacing = 34;
-      const rows = Math.ceil(h / spacing) + 2;
-      const step = Math.max(14, w / 110);
-      const baseA = light ? 0.17 : 0.13;
-
-      // the landmark closest to the focal line is the one being read:
-      // the water will ping it
-      let focus = null, focusDist = 1e9;
-      const focal = h * 0.42;
-      for (const rc of rects) {
-        const d = Math.abs(rc.top + rc.height / 2 - focal);
-        if (d < focusDist) { focusDist = d; focus = rc; }
-      }
-
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        if (t - ripples[i].t0 > 2.2) ripples.splice(i, 1);
-      }
-
-      const hi = []; // highlighted segments: parted edges + cursor wake
-
-      for (let r = 0; r < rows; r++) {
-        const baseY = r * spacing;
-        const k = r / rows;
-        const col = light
-          ? (150 - 20 * k) + ',' + (76 - 14 * k) + ',' + (50 - 8 * k)
-          : (224 - 58 * k) + ',' + (140 - 52 * k) + ',' + (96 - 38 * k);
-
-        ctx.beginPath();
-        let prevX = 0, prevY = 0, prevBoost = 0;
-
-        for (let x = 0; x <= w + step; x += step) {
-          const wave =
-            Math.sin(x * 0.0042 + t * 0.32 + r * 0.9) * 6.5 +
-            Math.sin(x * 0.011 + t * 0.62 + r * 0.55) * 4.5 +
-            Math.sin(x * 0.023 - t * 0.5 + r * 1.3) * 2.2;
-          let y = baseY + wave;
-          let boost = 0;
-
-          // the water makes space for what matters
-          for (const rc of rects) {
-            const cx0 = rc.left - 110, cx1 = rc.right + 110;
-            if (x < cx0 || x > cx1) continue;
-            const fe = Math.min(1, Math.min(x - cx0, cx1 - x) / 110);
-            const fx = fe * fe * (3 - 2 * fe); // smoothstep: liquid ends, no facets
-            const cy = rc.top + rc.height / 2;
-            const H = rc.height / 2 + 46;
-            const dy = baseY - cy;
-            const ady = Math.abs(dy);
-            if (ady < H) {
-              const push = (1 - (ady / H) * (ady / H)) * H * 0.94 * fx;
-              y += (dy >= 0 ? 1 : -1) * push;
-              boost = Math.max(boost, Math.min(0.3, (push / H) * 0.34));
-            }
-          }
-
-          // cursor presses a soft hollow into the surface
-          const dxm = x - mouse.x, dym = y - mouse.y;
-          const dm2 = dxm * dxm + dym * dym;
-          if (dm2 < 90000) {
-            const fm = Math.exp(-dm2 / 16000);
-            const dm = Math.sqrt(dm2) + 0.001;
-            y += (dym / dm) * fm * 34;
-            boost = Math.max(boost, fm * 0.4);
-          }
-
-          // expanding ripple rings from movement
-          for (const rp of ripples) {
-            const age = t - rp.t0;
-            const rad = age * 230;
-            const dxr = x - rp.x, dyr = y - rp.y;
-            const dr = Math.sqrt(dxr * dxr + dyr * dyr) + 0.001;
-            const band = Math.exp(-((dr - rad) * (dr - rad)) / 1800);
-            const s = 20 * Math.exp(-age * 1.6) * band;
-            if (s > 0.3) {
-              y += (dyr / dr) * s;
-              boost = Math.max(boost, s * 0.012);
-            }
-          }
-
-          if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-          if (boost > 0.05 && prevBoost > 0.02) {
-            hi.push({ x1: prevX, y1: prevY, x2: x, y2: y, a: boost });
-          }
-          prevX = x; prevY = y; prevBoost = boost;
-        }
-
-        ctx.strokeStyle = 'rgba(' + col + ',' + baseA + ')';
-        ctx.lineWidth = 1.1;
-        ctx.stroke();
-      }
-
-      if (hi.length) {
-        const hcol = light ? '150,74,48' : '238,170,122';
-        const buckets = [[0.05, 0.14, 0.2], [0.14, 0.26, 0.32], [0.26, 1.01, 0.5]];
-        for (const [lo, up, a] of buckets) {
-          ctx.beginPath();
-          let any = false;
-          for (const s of hi) {
-            if (s.a >= lo && s.a < up) {
-              ctx.moveTo(s.x1, s.y1);
-              ctx.lineTo(s.x2, s.y2);
-              any = true;
-            }
-          }
-          if (any) {
-            ctx.strokeStyle = 'rgba(' + hcol + ',' + a + ')';
-            ctx.lineWidth = 1.3;
-            ctx.stroke();
-          }
-        }
-      }
-
-      // sonar — the water pings whatever you are reading:
-      // rings ripple outward from the focused landmark and fade
-      if (focus) {
-        const fade = 1 - Math.min(1, focusDist / (h * 0.5));
-        if (fade > 0.03) {
-          const rcol = light ? '150,74,48' : '238,170,122';
-          const ring = (x0, y0, ww, hh, rad) => {
-            if (ctx.roundRect) { ctx.roundRect(x0, y0, ww, hh, rad); return; }
-            ctx.moveTo(x0 + rad, y0);
-            ctx.arcTo(x0 + ww, y0, x0 + ww, y0 + hh, rad);
-            ctx.arcTo(x0 + ww, y0 + hh, x0, y0 + hh, rad);
-            ctx.arcTo(x0, y0 + hh, x0, y0, rad);
-            ctx.arcTo(x0, y0, x0 + ww, y0, rad);
-            ctx.closePath();
-          };
-          for (let i = 0; i < 3; i++) {
-            const ph = (t / 2.6 + i / 3) % 1;
-            const pad = 18 + ph * 74;
-            const a = (1 - ph) * (1 - ph) * 0.5 * fade;
-            if (a < 0.02) continue;
-            ctx.beginPath();
-            ring(
-              focus.left - pad, focus.top - pad,
-              focus.width + pad * 2, focus.height + pad * 2,
-              Math.min(26 + ph * 30, (focus.height + pad * 2) / 2)
-            );
-            ctx.strokeStyle = 'rgba(' + rcol + ',' + a.toFixed(3) + ')';
-            ctx.lineWidth = 1.4;
-            ctx.stroke();
-          }
-        }
-      }
-    };
-
-    const loop = () => {
-      t += 0.016;
-      draw();
-      rafId = requestAnimationFrame(loop);
-    };
-
-    const setRunning = (on) => {
-      if (on && !running) { running = true; rafId = requestAnimationFrame(loop); }
-      if (!on && running) { running = false; cancelAnimationFrame(rafId); }
-    };
-
-    resize();
-
-    if (reducedMotion) {
-      draw();
-      const redraw = () => { resize(); draw(); };
-      window.addEventListener('resize', redraw);
-      window.addEventListener('scroll', () => draw(), { passive: true });
-      window.addEventListener('themechange', () => draw());
-    } else {
-      draw(); // first frame immediately, even if the tab starts hidden
-      window.addEventListener('resize', resize);
-      window.addEventListener('themechange', () => { if (!running) draw(); });
-      window.addEventListener('pointermove', (e) => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-        const dx = mouse.x - lastRx, dy = mouse.y - lastRy;
-        if (t - lastRipple > 0.14 && dx * dx + dy * dy > 700 && ripples.length < 10) {
-          ripples.push({ x: mouse.x, y: mouse.y, t0: t });
-          lastRipple = t; lastRx = mouse.x; lastRy = mouse.y;
-        }
-      }, { passive: true });
-
-      document.addEventListener('visibilitychange', () => {
-        setRunning(!document.hidden);
-      });
-
-      setRunning(!document.hidden);
+    const hero = document.querySelector('.hero-name');
+    if (hero) {
+      const r = hero.getBoundingClientRect();
+      push(hero, rail ? 26 : r.left + Math.min(400, r.width * 0.28), r.top + sy + r.height / 2, 'title');
     }
+    document.querySelectorAll('section').forEach((sec) => {
+      if (sec.classList.contains('contact')) return;
+      const h2 = sec.querySelector('.section-head h2, .about-inner h2');
+      if (h2) {
+        const r = h2.getBoundingClientRect();
+        push(h2, rail ? 26 : r.left + 140, r.top + sy + r.height / 2, 'title');
+      }
+      if (sec.classList.contains('experience')) {
+        const tl = sec.querySelector('.timeline');
+        const tr = tl.getBoundingClientRect();
+        const cx = rail ? 26 : tr.left + tr.width / 2;
+        tl.querySelectorAll('.entry').forEach((en) => {
+          const r = en.getBoundingClientRect();
+          push(en, cx, r.top + sy + Math.min(56, r.height / 2), 'entry');
+        });
+      }
+      if (sec.classList.contains('work')) {
+        sec.querySelectorAll('.case h3').forEach((h3) => {
+          const r = h3.getBoundingClientRect();
+          push(h3, rail ? 26 : r.left + r.width / 2, r.top + sy + r.height / 2, 'title');
+        });
+        sec.querySelectorAll('.ml-row').forEach((row, i) => {
+          const r = row.getBoundingClientRect();
+          push(row, rail ? 26 : r.left + r.width * (i % 2 ? 0.68 : 0.3), r.top + sy + r.height / 2, 'row');
+        });
+      }
+    });
+    out.sort((a, b) => a.y - b.y);
+    return out;
+  };
+
+  const buildSpine = () => {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    anchors = collectAnchors();
+    if (!anchors.length) return;
+
+    const docW = document.documentElement.clientWidth;
+    const docH = document.documentElement.scrollHeight;
+    cAttr(svg, { width: docW, height: docH, viewBox: '0 0 ' + docW + ' ' + docH });
+    svg.style.height = docH + 'px';
+
+    const contact = document.querySelector('.contact');
+    const endY = contact
+      ? contact.getBoundingClientRect().top + window.scrollY - 50
+      : docH - 80;
+    const pts = [
+      { x: anchors[0].x, y: 0 },
+      ...anchors.map((a) => ({ x: a.x, y: a.y })),
+      { x: Math.max(26, docW * 0.5), y: endY }
+    ];
+
+    // Catmull-Rom through the nodes → smooth falling thread
+    let d = 'M ' + pts[0].x + ' ' + pts[0].y;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)], p1 = pts[i];
+      const p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+      const c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
+      const c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+      d += ' C ' + c1x + ' ' + c1y + ' ' + c2x + ' ' + c2y + ' ' + p2.x + ' ' + p2.y;
+    }
+
+    basePath = document.createElementNS(NS, 'path');
+    cAttr(basePath, { d, class: 'spine-base' });
+    svg.appendChild(basePath);
+
+    litPath = document.createElementNS(NS, 'path');
+    cAttr(litPath, { d, class: 'spine-lit' });
+    svg.appendChild(litPath);
+
+    totalLen = basePath.getTotalLength();
+    litPath.style.strokeDasharray = '0 ' + (totalLen + 10);
+
+    // sample the path so scroll position maps to length quickly
+    samples = [];
+    const N = 600;
+    for (let i = 0; i <= N; i++) {
+      const s = (totalLen * i) / N;
+      samples.push({ s, y: basePath.getPointAtLength(s).y });
+    }
+    // assign each anchor its position along the thread
+    for (const a of anchors) {
+      let best = 0, bd = 1e12;
+      for (const sm of samples) {
+        const dd = Math.abs(sm.y - a.y);
+        if (dd < bd) { bd = dd; best = sm.s; }
+      }
+      a.s = best;
+    }
+
+    // nodes
+    for (const a of anchors) {
+      const n = document.createElementNS(NS, 'circle');
+      cAttr(n, { cx: a.x, cy: a.y, r: a.kind === 'entry' ? 6 : 5, class: 'spine-node' });
+      svg.appendChild(n);
+      a.node = n;
+    }
+
+    headHalo = document.createElementNS(NS, 'circle');
+    cAttr(headHalo, { r: 17, class: 'spine-halo' });
+    svg.appendChild(headHalo);
+    headDot = document.createElementNS(NS, 'circle');
+    cAttr(headDot, { r: 5, class: 'spine-head' });
+    svg.appendChild(headDot);
+  };
+
+  const lightAt = (s) => {
+    litPath.style.strokeDasharray = s + ' ' + (totalLen + 10);
+    const p = basePath.getPointAtLength(s);
+    cAttr(headDot, { cx: p.x, cy: p.y });
+    cAttr(headHalo, { cx: p.x, cy: p.y });
+    for (const a of anchors) {
+      const on = a.s <= s + 2;
+      a.node.classList.toggle('on', on);
+      if (a.kind === 'entry') a.el.classList.toggle('lit', on);
+      else a.el.classList.toggle('spine-glow', on);
+    }
+  };
+
+  const sForScroll = () => {
+    const focusY = window.scrollY + window.innerHeight * 0.45;
+    let lo = 0, hi = samples.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (samples[mid].y < focusY) lo = mid + 1; else hi = mid;
+    }
+    return samples[lo].s;
+  };
+
+  let spineTick = false;
+  const onSpineScroll = () => {
+    if (spineTick) return;
+    spineTick = true;
+    requestAnimationFrame(() => {
+      spineTick = false;
+      if (totalLen) lightAt(sForScroll());
+    });
+  };
+
+  let rbTimer = 0;
+  const rebuild = () => {
+    clearTimeout(rbTimer);
+    rbTimer = setTimeout(() => {
+      buildSpine();
+      if (reducedMotion) {
+        lightAt(totalLen);
+        if (headDot) { headDot.style.display = 'none'; headHalo.style.display = 'none'; }
+      } else {
+        lightAt(sForScroll());
+      }
+    }, 180);
+  };
+
+  buildSpine();
+  if (reducedMotion) {
+    lightAt(totalLen);
+    if (headDot) { headDot.style.display = 'none'; headHalo.style.display = 'none'; }
+    window.addEventListener('resize', rebuild);
+    window.addEventListener('load', rebuild);
+  } else {
+    lightAt(sForScroll());
+    window.addEventListener('scroll', onSpineScroll, { passive: true });
+    window.addEventListener('resize', rebuild);
+    window.addEventListener('load', rebuild);
+  }
+
+  /* ------------------------------------------------------------------
+     Tactile titles — letters rise and warm under the cursor
+     ------------------------------------------------------------------ */
+  if (finePointer && !reducedMotion) {
+    const titles = document.querySelectorAll(
+      '.hero-name .line, .section-head h2, .case h3, .entry h3, .ml-info h3, .about-inner h2, .contact-inner h2'
+    );
+    titles.forEach((el) => {
+      if (el.closest('.hero-name')) {
+        const h1 = el.closest('.hero-name');
+        if (!h1.hasAttribute('aria-label')) h1.setAttribute('aria-label', h1.textContent.trim());
+        el.setAttribute('aria-hidden', 'true');
+      } else {
+        el.setAttribute('aria-label', el.textContent.trim());
+      }
+
+      const wrap = (node) => {
+        [...node.childNodes].forEach((n) => {
+          if (n.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach((tok) => {
+              if (!tok) return;
+              if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(tok)); return; }
+              const word = document.createElement('span');
+              word.className = 'word';
+              for (const chr of tok) {
+                const c = document.createElement('span');
+                c.className = 'ch';
+                c.textContent = chr;
+                word.appendChild(c);
+              }
+              frag.appendChild(word);
+            });
+            n.replaceWith(frag);
+          } else if (n.nodeType === 1) {
+            wrap(n);
+          }
+        });
+      };
+      wrap(el);
+
+      const chs = [...el.querySelectorAll('.ch')];
+      if (!chs.length) return;
+      const cur = new Array(chs.length).fill(0);
+      let tgt = new Array(chs.length).fill(0);
+      let raf = 0;
+
+      const step = () => {
+        let settled = true;
+        for (let i = 0; i < chs.length; i++) {
+          cur[i] += (tgt[i] - cur[i]) * 0.2;
+          const f = cur[i];
+          if (Math.abs(tgt[i] - f) > 0.004 || f > 0.004) settled = false;
+          if (f > 0.004) {
+            chs[i].style.transform = 'translateY(' + (-f * 0.14).toFixed(3) + 'em)';
+            chs[i].style.color = 'color-mix(in oklab, var(--terra) ' + Math.round(f * 100) + '%, currentColor)';
+          } else {
+            chs[i].style.transform = '';
+            chs[i].style.color = '';
+          }
+        }
+        raf = settled ? 0 : requestAnimationFrame(step);
+      };
+      const kick = () => { if (!raf) raf = requestAnimationFrame(step); };
+
+      el.addEventListener('pointermove', (e) => {
+        const R = 110;
+        for (let i = 0; i < chs.length; i++) {
+          const r = chs[i].getBoundingClientRect();
+          const dx = e.clientX - (r.left + r.width / 2);
+          const dy = e.clientY - (r.top + r.height / 2);
+          tgt[i] = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / R);
+        }
+        kick();
+      }, { passive: true });
+      el.addEventListener('pointerleave', () => {
+        tgt = new Array(chs.length).fill(0);
+        kick();
+      });
+    });
   }
 
   /* ------------------------------------------------------------------
@@ -336,36 +381,6 @@
   }
 
   /* ------------------------------------------------------------------
-     Experience timeline — the light that walks the line
-     ------------------------------------------------------------------ */
-  const timeline = document.querySelector('.timeline');
-  if (timeline) {
-    const entries = [...timeline.querySelectorAll('.entry')];
-    if (reducedMotion) {
-      entries.forEach((e) => e.classList.add('lit'));
-    } else {
-      let ticking = false;
-      const update = () => {
-        ticking = false;
-        const rect = timeline.getBoundingClientRect();
-        const focus = window.innerHeight * 0.55;
-        const p = Math.max(0, Math.min(1, (focus - rect.top) / rect.height));
-        timeline.style.setProperty('--tp', p.toFixed(4));
-        const tipY = rect.top + p * rect.height;
-        entries.forEach((en) => {
-          en.classList.toggle('lit', en.getBoundingClientRect().top + 40 <= tipY);
-        });
-      };
-      const onScroll = () => {
-        if (!ticking) { ticking = true; requestAnimationFrame(update); }
-      };
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
-      update();
-    }
-  }
-
-  /* ------------------------------------------------------------------
      Tech stack readout — hover a tile, see where it earned its place
      ------------------------------------------------------------------ */
   const readout = document.querySelector('.stack-readout');
@@ -405,8 +420,8 @@
   if (!('IntersectionObserver' in window) || reducedMotion) {
     reveals.forEach((el) => el.classList.add('in'));
   } else {
-    const io = new IntersectionObserver((entries2) => {
-      entries2.forEach((entry) => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         entry.target.classList.add('in');
         entry.target.querySelectorAll('[data-count]').forEach(runCounter);
