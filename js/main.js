@@ -426,7 +426,7 @@
   let curS = 0, tgtS = 0, glideRaf = 0;
   const glide = () => {
     const diff = tgtS - curS;
-    const step = Math.sign(diff) * Math.min(Math.abs(diff) * 0.12, 68);
+    const step = Math.sign(diff) * Math.min(Math.abs(diff) * 0.085, 42);
     curS += step;
     if (Math.abs(tgtS - curS) < 0.4) curS = tgtS;
     lightAt(curS);
