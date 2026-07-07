@@ -178,16 +178,39 @@
     svg.appendChild(headDot);
   };
 
+  const trainer = document.querySelector('.trainer');
+  const trTop = trainer && trainer.querySelector('.tr-top');
+  const trFill = trainer && trainer.querySelector('.tr-fill');
+  const trPct = trainer && trainer.querySelector('.tr-pct');
+  let trLast = '';
+
   const lightAt = (s) => {
     litPath.style.strokeDasharray = s + ' ' + (totalLen + 10);
     const p = basePath.getPointAtLength(s);
     cAttr(headDot, { cx: p.x, cy: p.y });
     cAttr(headHalo, { cx: p.x, cy: p.y });
+    let passed = 0;
     for (const a of anchors) {
       const on = a.s <= s + 2;
+      if (on) passed++;
       a.node.classList.toggle('on', on);
       if (a.kind === 'entry') a.el.classList.toggle('lit', on);
       else a.el.classList.toggle('spine-glow', on);
+    }
+
+    // the training run: scroll = epochs, loss falls, accuracy climbs
+    if (trainer) {
+      const pr = Math.min(1, s / totalLen);
+      const done = pr >= 0.99;
+      const line = done
+        ? 'training complete · model converged <b>✓</b>'
+        : 'epoch <b>' + String(passed).padStart(2, '0') + '/' + anchors.length +
+          '</b> · loss <b>' + (2.303 * Math.exp(-5 * pr)).toFixed(3) +
+          '</b> · acc <b>' + (0.1 + 0.899 * (1 - Math.exp(-3 * pr)) / (1 - Math.exp(-3))).toFixed(3) + '</b>';
+      if (line !== trLast) { trTop.innerHTML = line; trLast = line; }
+      trFill.style.width = (pr * 100).toFixed(1) + '%';
+      trPct.textContent = Math.round(pr * 100) + '%';
+      trainer.classList.toggle('done', done);
     }
   };
 

@@ -141,6 +141,50 @@ a { color: inherit; }
 body.aura-on .cursor-aura { opacity: 1; }
 
 /* --------------------------------------------------------------------------
+   Trainer HUD — scrolling is a training run
+   -------------------------------------------------------------------------- */
+.trainer {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 80;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem 0.6rem;
+  align-items: center;
+  min-width: 16rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.62rem;
+  color: var(--ink-dim);
+  background: color-mix(in oklab, var(--bg-deep) 80%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  transition: border-color 0.4s ease, color 0.4s ease;
+}
+.tr-top { grid-column: 1 / -1; white-space: nowrap; letter-spacing: 0.02em; }
+.trainer b { color: var(--terra); font-weight: 500; }
+.tr-bar {
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.tr-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--terra-deep), var(--terra-hot));
+  border-radius: 2px;
+}
+.tr-pct { color: var(--terra); }
+.trainer.done { border-color: var(--terra-deep); color: var(--terra); }
+.trainer.done b, .trainer.done .tr-pct { color: var(--terra-hot); }
+@media (max-width: 720px) {
+  .trainer { min-width: 12.5rem; font-size: 0.56rem; left: 0.6rem; bottom: 0.6rem; }
+}
+
+/* --------------------------------------------------------------------------
    Nav
    -------------------------------------------------------------------------- */
 .nav {
