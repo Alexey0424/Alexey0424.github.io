@@ -133,6 +133,17 @@
         svg.appendChild(g);
       });
 
+      // data packets — a bright drop travels each edge once it is lit
+      edges.forEach((e, i) => {
+        const pk = document.createElementNS(NS, 'circle');
+        cAttr(pk, { r: 2.6, class: 'fg-packet' });
+        const am = document.createElementNS(NS, 'animateMotion');
+        cAttr(am, { dur: (1.35 + i * 0.15).toFixed(2) + 's', repeatCount: 'indefinite', path: e.getAttribute('d') });
+        pk.appendChild(am);
+        svg.appendChild(pk);
+        e.__packet = pk;
+      });
+
       box.appendChild(svg);
     });
   };
@@ -164,100 +175,121 @@
   }
 
   /* ------------------------------------------------------------------
-     The falling light — one luminous thread runs the whole page,
-     passing through every node: the name, each job, each project,
-     and every stage of every flow graph. Scrolling makes the light
-     fall along it, igniting nodes as it passes.
+     The falling light — one luminous thread descends the page's quiet
+     center and dives into each flow graph, walking the pipeline stage
+     by stage. Each stage is an epoch. Content ignites when an unseen
+     reading line reaches it; the thread itself only visits the graphs.
      ------------------------------------------------------------------ */
+  const lumen = document.createElement('div');
+  lumen.className = 'lumen';
+  lumen.setAttribute('aria-hidden', 'true');
+
   const svg = document.createElementNS(NS, 'svg');
   svg.id = 'spine';
   svg.setAttribute('aria-hidden', 'true');
   document.body.prepend(svg);
+  document.body.prepend(lumen);
 
-  let basePath, litPath, headDot, headHalo;
-  let anchors = [];      // {el, x, y, s, node, kind}
+  let basePath, litPath, headDot, headHalo, epochText, epochLabel, epochNum;
+  let anchors = [];      // flow-graph stages: {el, x, y, s, edge, packet, zone}
+  let zones = [];        // content that ignites as the reading line passes
+  let caseZones = [];
   let totalLen = 0;
+  let spineW = 0;
   let samples = [];      // [{s, y}] for scroll → length lookup
 
   const collectAnchors = () => {
     const sy = window.scrollY;
     const rail = window.innerWidth <= 900;
     const out = [];
-    const push = (el, x, y, kind) => out.push({ el, x: Math.max(20, x), y, kind });
-
-    const hero = document.querySelector('.hero-name');
-    if (hero) {
-      const r = hero.getBoundingClientRect();
-      push(hero, rail ? 26 : r.left + Math.min(400, r.width * 0.28), r.top + sy + r.height / 2, 'title');
-    }
-    document.querySelectorAll('section').forEach((sec) => {
-      if (sec.classList.contains('contact')) return;
-      const h2 = sec.querySelector('.section-head h2, .about-inner h2');
-      if (h2) {
-        const r = h2.getBoundingClientRect();
-        push(h2, rail ? 26 : r.left + 140, r.top + sy + r.height / 2, 'title');
-      }
-      if (sec.classList.contains('experience')) {
-        const tl = sec.querySelector('.timeline');
-        const tr = tl.getBoundingClientRect();
-        const cx = rail ? 26 : tr.left + tr.width / 2;
-        tl.querySelectorAll('.entry').forEach((en) => {
-          const r = en.getBoundingClientRect();
-          push(en, cx, r.top + sy + Math.min(56, r.height / 2), 'entry');
+    document.querySelectorAll('.case').forEach((cs) => {
+      cs.querySelectorAll('.fg-node').forEach((gn) => {
+        // anchor on the node's socket so the thread rides the
+        // same corridor as the graph's own edges
+        const sock = gn.querySelector('.fg-sock');
+        const r = (sock || gn).getBoundingClientRect();
+        out.push({
+          el: gn,
+          x: Math.max(20, rail ? 26 : r.left + r.width / 2),
+          y: r.top + sy + r.height / 2,
+          edge: gn.__edge || null,
+          packet: gn.__edge ? gn.__edge.__packet : null,
+          zone: cs
         });
-      }
-      if (sec.classList.contains('work')) {
-        sec.querySelectorAll('.case').forEach((cs) => {
-          const h3 = cs.querySelector('h3');
-          if (h3) {
-            const r = h3.getBoundingClientRect();
-            push(h3, rail ? 26 : r.left + r.width / 2, r.top + sy + r.height / 2, 'title');
-          }
-          cs.querySelectorAll('.fg-node').forEach((gn) => {
-            // anchor on the node's socket so the thread rides the
-            // same corridor as the graph's own edges
-            const sock = gn.querySelector('.fg-sock');
-            const r = (sock || gn).getBoundingClientRect();
-            const a = {
-              el: gn,
-              x: Math.max(20, rail ? 26 : r.left + r.width / 2),
-              y: r.top + sy + r.height / 2,
-              kind: 'gnode'
-            };
-            a.edge = gn.__edge || null;
-            a.zone = cs;
-            out.push(a);
-          });
-        });
-        sec.querySelectorAll('.ml-row').forEach((row, i) => {
-          const r = row.getBoundingClientRect();
-          push(row, rail ? 26 : r.left + r.width * (i % 2 ? 0.68 : 0.3), r.top + sy + r.height / 2, 'row');
-        });
-      }
+      });
     });
     out.sort((a, b) => a.y - b.y);
+    return out;
+  };
+
+  const collectZones = () => {
+    const sy = window.scrollY;
+    const out = [];
+    const add = (el, cls, y) => out.push({ el, cls, y });
+    document.querySelectorAll('.section-head h2, .about-inner h2, .case h3').forEach((h) => {
+      const r = h.getBoundingClientRect();
+      add(h, 'spine-glow', r.top + sy + r.height / 2);
+    });
+    document.querySelectorAll('.entry').forEach((en) => {
+      const r = en.getBoundingClientRect();
+      add(en, 'lit', r.top + sy + Math.min(56, r.height / 2));
+    });
+    document.querySelectorAll('.ml-row').forEach((row) => {
+      const r = row.getBoundingClientRect();
+      add(row, 'spine-glow', r.top + sy + r.height / 2);
+    });
     return out;
   };
 
   const buildSpine = () => {
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     anchors = collectAnchors();
+    zones = collectZones();
+    caseZones = [...new Set(anchors.map((a) => a.zone).filter(Boolean))];
     if (!anchors.length) return;
 
+    const sy = window.scrollY;
+    const rail = window.innerWidth <= 900;
     const docW = document.documentElement.clientWidth;
     const docH = document.documentElement.scrollHeight;
+    spineW = docW;
     cAttr(svg, { width: docW, height: docH, viewBox: '0 0 ' + docW + ' ' + docH });
     svg.style.height = docH + 'px';
 
     const contact = document.querySelector('.contact');
     const endY = contact
-      ? contact.getBoundingClientRect().top + window.scrollY - 50
+      ? contact.getBoundingClientRect().top + sy - 50
       : docH - 80;
-    const pts = [
-      { x: anchors[0].x, y: 0 },
-      ...anchors.map((a) => ({ x: a.x, y: a.y })),
-      { x: Math.max(26, docW * 0.5), y: endY }
-    ];
+
+    // corridor: fall down the page's center, dive into each pipeline,
+    // walk its stages, then drift on to the next one
+    const cx = rail ? 26 : docW * 0.5;
+    const pts = [{ x: cx, y: 0 }];
+    if (rail) {
+      anchors.forEach((a) => pts.push({ x: a.x, y: a.y }));
+    } else {
+      const tl = document.querySelector('.timeline');
+      if (tl) {
+        const r = tl.getBoundingClientRect();
+        const tcx = r.left + r.width / 2;
+        pts.push({ x: tcx, y: r.top + sy + 24 });
+        pts.push({ x: tcx, y: r.top + sy + r.height - 24 });
+      }
+      caseZones.forEach((cs) => {
+        const list = anchors.filter((a) => a.zone === cs);
+        if (!list.length) return;
+        const first = list[0], last = list[list.length - 1];
+        const prev = pts[pts.length - 1];
+        const inY = first.y - 70;
+        pts.push({ x: (prev.x + first.x) / 2, y: (prev.y + inY) / 2 });
+        pts.push({ x: first.x, y: inY });
+        list.forEach((a) => pts.push({ x: a.x, y: a.y }));
+        pts.push({ x: last.x, y: last.y + 70 });
+      });
+      const prev = pts[pts.length - 1];
+      pts.push({ x: (prev.x + cx) / 2, y: (prev.y + endY) / 2 });
+    }
+    pts.push({ x: cx, y: endY });
 
     // Catmull-Rom through the nodes → smooth falling thread
     let d = 'M ' + pts[0].x + ' ' + pts[0].y;
@@ -297,15 +329,6 @@
       a.s = best;
     }
 
-    // nodes — flow-graph stages draw their own visuals, so no circle there
-    for (const a of anchors) {
-      if (a.kind === 'gnode') { a.node = null; continue; }
-      const n = document.createElementNS(NS, 'circle');
-      cAttr(n, { cx: a.x, cy: a.y, r: a.kind === 'entry' ? 6 : 5, class: 'spine-node' });
-      svg.appendChild(n);
-      a.node = n;
-    }
-
     // the lamp: a soft radial light the head carries as it falls
     const defs = document.createElementNS(NS, 'defs');
     const grad = document.createElementNS(NS, 'radialGradient');
@@ -326,54 +349,65 @@
     headDot = document.createElementNS(NS, 'circle');
     cAttr(headDot, { r: 5.5, class: 'spine-head' });
     svg.appendChild(headDot);
+
+    // the epoch tag lives inside the spine svg, so it can never
+    // paint over the page — it rides beside the lamp, beneath it all
+    epochText = document.createElementNS(NS, 'text');
+    epochText.setAttribute('class', 'spine-epoch');
+    epochLabel = document.createElementNS(NS, 'tspan');
+    epochLabel.textContent = 'epoch ';
+    epochNum = document.createElementNS(NS, 'tspan');
+    epochNum.setAttribute('class', 'ep-n');
+    epochNum.textContent = '00/' + anchors.length;
+    epochText.appendChild(epochLabel);
+    epochText.appendChild(epochNum);
+    svg.appendChild(epochText);
   };
 
-  const trainer = document.querySelector('.trainer');
-  const trTop = trainer && trainer.querySelector('.tr-top');
-  let trLast = '';
+  let epLast = '';
 
   const lightAt = (s) => {
     litPath.style.strokeDasharray = s + ' ' + (totalLen + 10);
     const p = basePath.getPointAtLength(s);
     cAttr(headDot, { cx: p.x, cy: p.y });
     cAttr(headHalo, { cx: p.x, cy: p.y });
+
+    // the lamp reveals a faint circuit lattice around itself
+    lumen.style.setProperty('--lx', p.x.toFixed(1) + 'px');
+    lumen.style.setProperty('--ly', (p.y - window.scrollY).toFixed(1) + 'px');
+
     let passed = 0;
+    const zonesOn = new Set();
     for (const a of anchors) {
       const on = a.s <= s + 2;
-      if (on) passed++;
-      if (a.node) a.node.classList.toggle('on', on);
-      if (a.kind === 'gnode') {
-        a.el.classList.toggle('on', on);
-        if (a.edge) a.edge.classList.toggle('on', on);
-        if (a.zone) a.zone.classList.toggle('zone-on', on);
-      } else if (a.kind === 'entry') {
-        a.el.classList.toggle('lit', on);
-      } else {
-        a.el.classList.toggle('spine-glow', on);
-        const zone = a.el.closest('.case');
-        if (zone) zone.classList.toggle('zone-on', on);
-      }
+      if (on) { passed++; if (a.zone) zonesOn.add(a.zone); }
+      a.el.classList.toggle('on', on);
+      if (a.edge) a.edge.classList.toggle('on', on);
+      if (a.packet) a.packet.classList.toggle('on', on);
+    }
+    for (const cz of caseZones) cz.classList.toggle('zone-on', zonesOn.has(cz));
+
+    // content ignites as the reading line reaches it
+    if (!reducedMotion) {
+      const focusY = window.scrollY + window.innerHeight * 0.45;
+      for (const z of zones) z.el.classList.toggle(z.cls, z.y <= focusY + 2);
     }
 
-    // the epoch tag rides quietly behind the content, next to the lamp
-    if (trainer) {
-      if (!reducedMotion) {
-        trainer.classList.add('float');
-        const tw = trainer.offsetWidth || 110;
-        const vw = window.innerWidth, vh = window.innerHeight;
-        let vx = p.x + 20;
-        if (vx + tw > vw - 8) vx = p.x - tw - 20;
-        vx = Math.max(8, vx);
-        let vy = p.y - window.scrollY - 34;
-        vy = Math.max(66, Math.min(vh - 44, vy));
-        trainer.style.transform = 'translate3d(' + Math.round(vx) + 'px,' + Math.round(vy) + 'px,0)';
-      }
+    if (epochText) {
       const done = s / totalLen >= 0.99;
       const line = done
-        ? 'converged <b>✓</b>'
-        : 'epoch <b>' + String(passed).padStart(2, '0') + '/' + anchors.length + '</b>';
-      if (line !== trLast) { trTop.innerHTML = line; trLast = line; }
-      trainer.classList.toggle('done', done);
+        ? 'converged |✓'
+        : 'epoch |' + String(passed).padStart(2, '0') + '/' + anchors.length;
+      if (line !== epLast) {
+        const parts = line.split('|');
+        epochLabel.textContent = parts[0];
+        epochNum.textContent = parts[1];
+        epLast = line;
+      }
+      let ex = p.x + 16;
+      if (ex + 112 > spineW) ex = p.x - 118;
+      cAttr(epochText, { x: Math.round(Math.max(8, ex)), y: Math.round(Math.max(16, p.y - 13)) });
+      epochText.classList.toggle('done', done);
     }
   };
 
@@ -387,14 +421,27 @@
     return samples[lo].s;
   };
 
-  let spineTick = false;
+  // the head glides toward the scroll target instead of jumping to it
+  let curS = 0, tgtS = 0, glideRaf = 0;
+  const glide = () => {
+    curS += (tgtS - curS) * 0.16;
+    if (Math.abs(tgtS - curS) < 0.4) curS = tgtS;
+    lightAt(curS);
+    glideRaf = curS === tgtS ? 0 : requestAnimationFrame(glide);
+  };
   const onSpineScroll = () => {
-    if (spineTick) return;
-    spineTick = true;
-    requestAnimationFrame(() => {
-      spineTick = false;
-      if (totalLen) lightAt(sForScroll());
-    });
+    if (!totalLen) return;
+    tgtS = sForScroll();
+    if (!glideRaf) glideRaf = requestAnimationFrame(glide);
+  };
+
+  const settleReduced = () => {
+    if (!totalLen) return;
+    lightAt(totalLen);
+    zones.forEach((z) => z.el.classList.add(z.cls));
+    if (headDot) { headDot.style.display = 'none'; headHalo.style.display = 'none'; }
+    if (epochText) epochText.style.display = 'none';
+    lumen.style.display = 'none';
   };
 
   let rbTimer = 0;
@@ -403,22 +450,24 @@
     rbTimer = setTimeout(() => {
       buildSpine();
       if (reducedMotion) {
-        lightAt(totalLen);
-        if (headDot) { headDot.style.display = 'none'; headHalo.style.display = 'none'; }
-      } else {
-        lightAt(sForScroll());
+        settleReduced();
+      } else if (totalLen) {
+        curS = tgtS = sForScroll();
+        lightAt(curS);
       }
     }, 180);
   };
 
   buildSpine();
   if (reducedMotion) {
-    lightAt(totalLen);
-    if (headDot) { headDot.style.display = 'none'; headHalo.style.display = 'none'; }
+    settleReduced();
     window.addEventListener('resize', rebuild);
     window.addEventListener('load', rebuild);
   } else {
-    lightAt(sForScroll());
+    if (totalLen) {
+      curS = tgtS = sForScroll();
+      lightAt(curS);
+    }
     window.addEventListener('scroll', onSpineScroll, { passive: true });
     window.addEventListener('resize', rebuild);
     window.addEventListener('load', rebuild);

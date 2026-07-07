@@ -141,38 +141,23 @@ a { color: inherit; }
 body.aura-on .cursor-aura { opacity: 1; }
 
 /* --------------------------------------------------------------------------
-   Trainer HUD — scrolling is a training run
+   Lumen — a hidden circuit lattice the falling lamp reveals as it passes
    -------------------------------------------------------------------------- */
-.trainer {
+.lumen {
   position: fixed;
-  top: 4.4rem;
-  right: 1rem;
-  z-index: 0; /* rides behind the content, with the light */
-  padding: 0.3em 0.75em;
-  font-size: 0.68rem;
-  color: var(--ink-dim);
-  background: color-mix(in oklab, var(--bg-deep) 42%, transparent);
-  border: 1px solid color-mix(in oklab, var(--line) 45%, transparent);
-  border-radius: 999px;
-  opacity: 0.85;
-  white-space: nowrap;
-  letter-spacing: 0.02em;
-  transition: color 0.4s ease;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle,
+    color-mix(in oklab, var(--terra) 65%, transparent) 1.1px, transparent 1.6px);
+  background-size: 26px 26px;
+  opacity: 0.55;
+  -webkit-mask-image: radial-gradient(230px circle at var(--lx, -500px) var(--ly, -500px),
+    rgb(0 0 0 / 0.85), transparent 72%);
+  mask-image: radial-gradient(230px circle at var(--lx, -500px) var(--ly, -500px),
+    rgb(0 0 0 / 0.85), transparent 72%);
 }
-/* when JS drives it, the HUD rides beside the falling light */
-.trainer.float {
-  top: 0;
-  left: 0;
-  right: auto;
-  bottom: auto;
-  will-change: transform;
-}
-.trainer b { color: var(--terra); font-weight: 500; }
-.trainer.done { color: var(--terra); }
-.trainer.done b { color: var(--terra-hot); }
-@media (max-width: 720px) {
-  .trainer { font-size: 0.58rem; }
-}
+:root[data-theme="light"] .lumen { opacity: 0.45; }
 
 /* --------------------------------------------------------------------------
    Nav
@@ -307,21 +292,21 @@ main, .footer { position: relative; z-index: 1; }
   stroke-width: 1.3;
   stroke-linecap: round;
 }
-.spine-node {
-  fill: var(--bg);
-  stroke: var(--line-strong);
-  stroke-width: 2;
-  transition: fill 0.4s ease, stroke 0.4s ease;
-}
-.spine-node.on {
-  fill: var(--terra);
-  stroke: var(--terra-hot);
-  filter: drop-shadow(0 0 9px oklch(68% 0.15 40 / 0.75));
-}
 .spine-head {
   fill: var(--terra-hot);
   filter: drop-shadow(0 0 12px oklch(77% 0.13 55 / 1));
 }
+/* the epoch tag — svg text beside the lamp, always beneath the page */
+.spine-epoch {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  fill: var(--ink-dim);
+  opacity: 0.8;
+}
+.spine-epoch .ep-n { fill: var(--terra); }
+.spine-epoch.done { opacity: 1; fill: var(--terra); }
+.spine-epoch.done .ep-n { fill: var(--terra-hot); }
 .spine-glow { text-shadow: 0 0 28px oklch(68% 0.15 40 / 0.45); }
 :root[data-theme="light"] .spine-glow { text-shadow: 0 0 26px oklch(55% 0.15 40 / 0.35); }
 .hero-inner {
@@ -603,6 +588,37 @@ html.js .reveal.in { opacity: 1; transform: none; }
   filter: drop-shadow(0 0 5px oklch(68% 0.15 40 / 0.6));
 }
 @keyframes dash-flow { to { stroke-dashoffset: -14; } }
+/* data packets — bright drops that travel each edge once it is lit */
+.fg-packet {
+  fill: var(--terra-hot);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  filter: drop-shadow(0 0 4px oklch(77% 0.13 55 / 0.9));
+}
+.fg-packet.on { opacity: 1; }
+
+/* a terra diamond snaps in beside a title when the light reaches it */
+.section-head h2, .about-inner h2, .case h3 { position: relative; }
+.section-head h2::before, .about-inner h2::before, .case h3::before {
+  content: "";
+  position: absolute;
+  left: -1.35rem;
+  top: calc(0.62em - 5px);
+  width: 9px; height: 9px;
+  background: var(--terra);
+  opacity: 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.6s var(--ease-out), opacity 0.35s ease;
+}
+.section-head h2.spine-glow::before,
+.about-inner h2.spine-glow::before,
+.case h3.spine-glow::before {
+  opacity: 1;
+  transform: rotate(45deg) scale(1);
+}
+@media (max-width: 720px) {
+  .section-head h2::before, .about-inner h2::before, .case h3::before { display: none; }
+}
 
 /* key words ignite when the light reaches their zone */
 .kw { transition: color 0.6s ease, text-shadow 0.6s ease; }
@@ -950,6 +966,9 @@ html.js .reveal.in { opacity: 1; transform: none; }
   html.js .reveal { opacity: 1; transform: none; transition: none; }
   .pulse-dot::after { animation: none; opacity: 0; }
   .fg-edge.on { animation: none; stroke-dasharray: none; }
+  .fg-packet { display: none; }
+  .lumen { display: none; }
+  .section-head h2::before, .about-inner h2::before, .case h3::before { transition: none; }
   .case-media.flow, .case-flip .case-media.flow { transform: none; }
   .btn, .chips li, .tile, .arrow, .theme-toggle { transition: none; }
   .cursor-aura { display: none; }
