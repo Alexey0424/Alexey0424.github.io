@@ -566,10 +566,94 @@
     lumen.style.display = 'none';
   };
 
+  /* ------------------------------------------------------------------
+     Intro — the hero mandala materializes and charges with energy,
+     the rings collapse inward, the falling light absorbs it all and
+     flashes, and the page emerges from that flash
+     ------------------------------------------------------------------ */
+  let introActive = false;
+  const runIntro = () => {
+    if (reducedMotion || document.hidden || window.scrollY > 40 ||
+        !mands.length || !headDot) return;
+    const m = mands[0];
+    const els = m.els;
+    // the ambient level each element settles back to after the flash
+    const focusY = window.scrollY + window.innerHeight * 0.45;
+    const restP = Math.max(0, Math.min(1, (focusY - m.top) / (m.bottom - m.top)));
+    const rest = els.map((el) => Math.max(0, Math.min(1, restP * 8.6 - el.__o)) * el.__v);
+    const bloom = els.map((el) => Math.min(0.95, el.__v * 2.1));
+
+    introActive = true;
+    root.classList.add('introing');
+    m.g.classList.add('spin');
+    const t0 = performance.now();
+    const D = 2450;
+    const ease = (x) => 1 - Math.pow(1 - x, 3);
+
+    const finish = () => {
+      if (!introActive) return;
+      introActive = false;
+      root.classList.remove('introing');
+      headDot.classList.remove('charging');
+      cAttr(headDot, { r: 5.5 });
+      cAttr(headHalo, { r: 78 });
+      mands.forEach((mm) => { mm.last = -1; });
+      if (totalLen) lightAt(sForScroll());
+      window.removeEventListener('wheel', finish);
+      window.removeEventListener('touchstart', finish);
+      window.removeEventListener('keydown', finish);
+      window.removeEventListener('scroll', finish);
+    };
+    // any input skips straight to the living page
+    window.addEventListener('wheel', finish, { passive: true });
+    window.addEventListener('touchstart', finish, { passive: true });
+    window.addEventListener('keydown', finish);
+    window.addEventListener('scroll', finish, { passive: true });
+    // safety net: never leave the page hidden (throttled/background tabs)
+    setTimeout(finish, D + 700);
+
+    const frame = (now) => {
+      if (!introActive) return;
+      const t = (now - t0) / D;
+      if (t >= 1) { finish(); return; }
+      if (t < 0.45) {
+        // bloom — the mandala materializes from its center outward
+        const front = ease(t / 0.45) * 8.6;
+        for (let i = 0; i < els.length; i++) {
+          const f = Math.max(0, Math.min(1, front - els[i].__o));
+          els[i].style.opacity = (f * bloom[i]).toFixed(3);
+        }
+      } else if (t < 0.82) {
+        // charge — rings collapse inward while the light swells
+        const q = ease((t - 0.45) / 0.37);
+        headDot.classList.add('charging');
+        for (let i = 0; i < els.length; i++) {
+          const o = els[i].__o;
+          const dim = Math.max(0, Math.min(1, q * 8.6 - (7 - o)));
+          els[i].style.opacity = (o === 0 ? bloom[i] : bloom[i] * (1 - dim)).toFixed(3);
+        }
+        cAttr(headDot, { r: (5.5 + q * 4).toFixed(2) });
+        cAttr(headHalo, { r: Math.round(78 + q * 30) });
+      } else {
+        // flash — the point releases, the world settles into place
+        const c = (t - 0.82) / 0.18;
+        for (let i = 0; i < els.length; i++) {
+          const from = els[i].__o === 0 ? bloom[i] : 0;
+          els[i].style.opacity = (from + (rest[i] - from) * c).toFixed(3);
+        }
+        cAttr(headHalo, { r: Math.round(108 + Math.sin(c * Math.PI) * 60) });
+        cAttr(headDot, { r: (9.5 - c * 4).toFixed(2) });
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  };
+
   let rbTimer = 0;
   const rebuild = () => {
     clearTimeout(rbTimer);
     rbTimer = setTimeout(() => {
+      if (introActive) { rebuild(); return; }
       buildSpine();
       if (reducedMotion) {
         settleReduced();
@@ -587,6 +671,7 @@
     window.addEventListener('load', rebuild);
   } else {
     if (totalLen) lightAt(sForScroll());
+    runIntro();
     window.addEventListener('scroll', onSpineScroll, { passive: true });
     window.addEventListener('scroll', dockCheck, { passive: true });
     window.addEventListener('resize', dockCheck);
