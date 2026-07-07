@@ -190,12 +190,12 @@
   document.body.prepend(svg);
   document.body.prepend(lumen);
 
-  let basePath, litPath, headDot, headHalo, epochText, epochLabel, epochNum;
+  let basePath, litPath, headDot, headHalo;
   let anchors = [];      // flow-graph stages: {el, x, y, s, edge, packet, zone}
   let zones = [];        // content that ignites as the reading line passes
   let caseZones = [];
+  let patches = [];      // mosaic patches behind key text
   let totalLen = 0;
-  let spineW = 0;
   let samples = [];      // [{s, y}] for scroll → length lookup
 
   const collectAnchors = () => {
@@ -241,6 +241,67 @@
     return out;
   };
 
+  // mosaic — translucent tesserae behind key text, lit tile by tile in
+  // reading order as the run advances, from a clear start to a clear end
+  const MOS_T = 11, MOS_G = 7;
+  // block-level headings report container width; measure the text itself
+  const textRect = (el) => {
+    const rg = document.createRange();
+    rg.selectNodeContents(el);
+    const r = rg.getBoundingClientRect();
+    return (r && r.width) ? r : el.getBoundingClientRect();
+  };
+  const buildMosaics = () => {
+    patches = [];
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'mos-layer');
+    const sy = window.scrollY;
+    const docW = document.documentElement.clientWidth;
+    document.querySelectorAll('.section-head h2, .about-inner h2, .case h3, .entry h3')
+      .forEach((el) => {
+        const r = textRect(el);
+        const ext = el.closest('.entry') ? 110 : 230;
+        const x0 = Math.max(14, r.left - 16);
+        const y0 = r.top + sy - 12;
+        const w = Math.min(r.width + ext, docW - x0 - 24);
+        const h = r.height + 22;
+        const cols = Math.max(4, Math.floor(w / (MOS_T + MOS_G)));
+        const rows = Math.max(2, Math.round(h / (MOS_T + MOS_G)));
+        const tiles = [];
+        for (let ri = 0; ri < rows; ri++) {
+          for (let ci = 0; ci < cols; ci++) {
+            const t = document.createElementNS(NS, 'rect');
+            const seed = (ri * 31 + ci * 17 + cols) % 9;
+            cAttr(t, {
+              x: x0 + ci * (MOS_T + MOS_G),
+              y: y0 + ri * (MOS_T + MOS_G),
+              width: MOS_T, height: MOS_T, rx: 2.5,
+              class: seed === 7 ? 'mos hot' : 'mos'
+            });
+            t.__v = 0.07 + (seed / 9) * 0.2;   // per-tile peak opacity
+            g.appendChild(t);
+            tiles.push(t);
+          }
+        }
+        patches.push({ tiles, top: y0, bottom: y0 + rows * (MOS_T + MOS_G), last: -1 });
+      });
+    svg.appendChild(g);
+  };
+
+  const paintMosaics = (focusY) => {
+    for (const pz of patches) {
+      const p = Math.max(0, Math.min(1,
+        (focusY - (pz.top - 60)) / (pz.bottom + 140 - (pz.top - 60))));
+      if (Math.abs(p - pz.last) < 0.003) continue;
+      pz.last = p;
+      const front = p * (pz.tiles.length + 5);
+      for (let i = 0; i < pz.tiles.length; i++) {
+        const f = Math.max(0, Math.min(1, (front - i) / 5));
+        pz.tiles[i].style.opacity = (f * pz.tiles[i].__v).toFixed(3);
+      }
+    }
+  };
+
   const buildSpine = () => {
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     anchors = collectAnchors();
@@ -252,9 +313,9 @@
     const rail = window.innerWidth <= 900;
     const docW = document.documentElement.clientWidth;
     const docH = document.documentElement.scrollHeight;
-    spineW = docW;
     cAttr(svg, { width: docW, height: docH, viewBox: '0 0 ' + docW + ' ' + docH });
     svg.style.height = docH + 'px';
+    buildMosaics();
 
     const contact = document.querySelector('.contact');
     const endY = contact
@@ -349,22 +410,16 @@
     headDot = document.createElementNS(NS, 'circle');
     cAttr(headDot, { r: 5.5, class: 'spine-head' });
     svg.appendChild(headDot);
-
-    // the epoch tag lives inside the spine svg, so it can never
-    // paint over the page — it rides beside the lamp, beneath it all
-    epochText = document.createElementNS(NS, 'text');
-    epochText.setAttribute('class', 'spine-epoch');
-    epochLabel = document.createElementNS(NS, 'tspan');
-    epochLabel.textContent = 'epoch ';
-    epochNum = document.createElementNS(NS, 'tspan');
-    epochNum.setAttribute('class', 'ep-n');
-    epochNum.textContent = '00/' + anchors.length;
-    epochText.appendChild(epochLabel);
-    epochText.appendChild(epochNum);
-    svg.appendChild(epochText);
   };
 
-  let epLast = '';
+  // the training console — metrics of the run
+  const trainer = document.querySelector('.trainer');
+  const trEpoch = trainer && trainer.querySelector('.tr-epoch');
+  const trLoss = trainer && trainer.querySelector('.tr-loss');
+  const trAcc = trainer && trainer.querySelector('.tr-acc');
+  const trFill = trainer && trainer.querySelector('.tr-fill');
+  const trPct = trainer && trainer.querySelector('.tr-pct');
+  let trKey = '';
 
   const lightAt = (s) => {
     litPath.style.strokeDasharray = s + ' ' + (totalLen + 10);
@@ -387,27 +442,29 @@
     }
     for (const cz of caseZones) cz.classList.toggle('zone-on', zonesOn.has(cz));
 
-    // content ignites as the reading line reaches it
+    // content ignites and the mosaic advances as the reading line moves
     if (!reducedMotion) {
       const focusY = window.scrollY + window.innerHeight * 0.45;
       for (const z of zones) z.el.classList.toggle(z.cls, z.y <= focusY + 2);
+      paintMosaics(focusY);
     }
 
-    if (epochText) {
-      const done = s / totalLen >= 0.99;
-      const line = done
-        ? 'converged |✓'
-        : 'epoch |' + String(passed).padStart(2, '0') + '/' + anchors.length;
-      if (line !== epLast) {
-        const parts = line.split('|');
-        epochLabel.textContent = parts[0];
-        epochNum.textContent = parts[1];
-        epLast = line;
+    // the console tracks the run: epoch, loss, accuracy, progress
+    if (trainer) {
+      const t = totalLen ? Math.min(1, s / totalLen) : 0;
+      const done = t >= 0.99;
+      const key = passed + '|' + Math.round(t * 400);
+      if (key !== trKey) {
+        trKey = key;
+        const loss = done ? 0.009 : 2.303 * Math.pow(1 - t, 2.2) + 0.009 * t;
+        const acc = done ? 1 : 0.1 + 0.9 * (1 - Math.pow(1 - t, 1.8));
+        trEpoch.textContent = String(passed).padStart(2, '0') + '/' + anchors.length;
+        trLoss.textContent = loss.toFixed(3);
+        trAcc.textContent = acc.toFixed(3);
+        trFill.style.width = (t * 100).toFixed(1) + '%';
+        trPct.textContent = done ? 'converged ✓' : Math.round(t * 100) + '%';
+        trainer.classList.toggle('done', done);
       }
-      let ex = p.x + 16;
-      if (ex + 112 > spineW) ex = p.x - 118;
-      cAttr(epochText, { x: Math.round(Math.max(8, ex)), y: Math.round(Math.max(16, p.y - 13)) });
-      epochText.classList.toggle('done', done);
     }
   };
 
@@ -421,29 +478,32 @@
     return samples[lo].s;
   };
 
-  // the head glides toward the scroll target instead of jumping to it,
-  // with a speed limit so the graph zigzags read as travel, not teleport
-  let curS = 0, tgtS = 0, glideRaf = 0;
-  const glide = () => {
-    const diff = tgtS - curS;
-    const step = Math.sign(diff) * Math.min(Math.abs(diff) * 0.085, 42);
-    curS += step;
-    if (Math.abs(tgtS - curS) < 0.4) curS = tgtS;
-    lightAt(curS);
-    glideRaf = curS === tgtS ? 0 : requestAnimationFrame(glide);
-  };
+  // the light tracks the scroll directly — the reader sets the pace
+  let spineTick = false;
   const onSpineScroll = () => {
-    if (!totalLen) return;
-    tgtS = sForScroll();
-    if (!glideRaf) glideRaf = requestAnimationFrame(glide);
+    if (spineTick) return;
+    spineTick = true;
+    requestAnimationFrame(() => {
+      spineTick = false;
+      if (totalLen) lightAt(sForScroll());
+    });
+  };
+
+  // the console starts big in the hero's open right side, then shrinks
+  // and docks into the top-right corner once the run sets off
+  const dockCheck = () => {
+    if (!trainer) return;
+    trainer.classList.toggle('docked',
+      window.innerWidth <= 900 || window.scrollY > 330);
   };
 
   const settleReduced = () => {
     if (!totalLen) return;
     lightAt(totalLen);
     zones.forEach((z) => z.el.classList.add(z.cls));
+    paintMosaics(1e9);
+    if (trainer) trainer.classList.add('docked');
     if (headDot) { headDot.style.display = 'none'; headHalo.style.display = 'none'; }
-    if (epochText) epochText.style.display = 'none';
     lumen.style.display = 'none';
   };
 
@@ -455,23 +515,22 @@
       if (reducedMotion) {
         settleReduced();
       } else if (totalLen) {
-        curS = tgtS = sForScroll();
-        lightAt(curS);
+        lightAt(sForScroll());
       }
     }, 180);
   };
 
   buildSpine();
+  dockCheck();
   if (reducedMotion) {
     settleReduced();
     window.addEventListener('resize', rebuild);
     window.addEventListener('load', rebuild);
   } else {
-    if (totalLen) {
-      curS = tgtS = sForScroll();
-      lightAt(curS);
-    }
+    if (totalLen) lightAt(sForScroll());
     window.addEventListener('scroll', onSpineScroll, { passive: true });
+    window.addEventListener('scroll', dockCheck, { passive: true });
+    window.addEventListener('resize', dockCheck);
     window.addEventListener('resize', rebuild);
     window.addEventListener('load', rebuild);
   }

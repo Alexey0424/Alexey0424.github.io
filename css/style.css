@@ -160,6 +160,61 @@ body.aura-on .cursor-aura { opacity: 1; }
 :root[data-theme="light"] .lumen { opacity: 0.45; }
 
 /* --------------------------------------------------------------------------
+   Training console — big in the hero's open right side, then it shrinks
+   and docks into the top-right corner as the run advances
+   -------------------------------------------------------------------------- */
+.trainer {
+  position: fixed;
+  top: clamp(15rem, 33vh, 21rem);
+  right: clamp(2.5rem, 8vw, 9rem);
+  z-index: 80;
+  display: grid;
+  gap: 0.5em;
+  min-width: 15.5rem;
+  padding: 1.15em 1.35em;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ink-dim);
+  background: color-mix(in oklab, var(--bg-deep) 55%, transparent);
+  border: 1px solid color-mix(in oklab, var(--line) 60%, transparent);
+  border-radius: 14px;
+  backdrop-filter: blur(8px);
+  transition: top 0.75s var(--ease-out), right 0.75s var(--ease-out),
+              min-width 0.75s var(--ease-out), font-size 0.75s var(--ease-out),
+              padding 0.75s var(--ease-out), gap 0.75s var(--ease-out);
+}
+.trainer b { color: var(--terra); font-weight: 500; }
+.tr-title { font-size: 0.74em; opacity: 0.7; letter-spacing: 0.05em; }
+.tr-row { display: flex; justify-content: space-between; gap: 2em; }
+.tr-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--line) 55%, transparent);
+  overflow: hidden;
+  margin-top: 0.15em;
+}
+.tr-fill {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--terra-deep), var(--terra-hot));
+}
+.tr-pct { justify-self: end; font-size: 0.85em; }
+.trainer.done .tr-pct { color: var(--terra); }
+.trainer.docked {
+  top: 4.3rem;
+  right: 1rem;
+  min-width: 10rem;
+  font-size: 0.6rem;
+  padding: 0.8em 1em;
+  gap: 0.4em;
+}
+@media (max-width: 720px) {
+  .trainer.docked { min-width: 8.5rem; font-size: 0.55rem; }
+}
+
+/* --------------------------------------------------------------------------
    Nav
    -------------------------------------------------------------------------- */
 .nav {
@@ -296,17 +351,11 @@ main, .footer { position: relative; z-index: 1; }
   fill: var(--terra-hot);
   filter: drop-shadow(0 0 12px oklch(77% 0.13 55 / 1));
 }
-/* the epoch tag — svg text beside the lamp, always beneath the page */
-.spine-epoch {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.02em;
-  fill: var(--ink-dim);
-  opacity: 0.8;
-}
-.spine-epoch .ep-n { fill: var(--terra); }
-.spine-epoch.done { opacity: 1; fill: var(--terra); }
-.spine-epoch.done .ep-n { fill: var(--terra-hot); }
+/* mosaic — translucent tesserae that light up behind key text */
+.mos-layer { opacity: 0.85; }
+:root[data-theme="light"] .mos-layer { opacity: 0.5; }
+.mos { fill: var(--terra); opacity: 0; }
+.mos.hot { fill: var(--terra-hot); }
 .spine-glow { text-shadow: 0 0 28px oklch(68% 0.15 40 / 0.45); }
 :root[data-theme="light"] .spine-glow { text-shadow: 0 0 26px oklch(55% 0.15 40 / 0.35); }
 .hero-inner {
@@ -969,6 +1018,7 @@ html.js .reveal.in { opacity: 1; transform: none; }
   .fg-packet { display: none; }
   .lumen { display: none; }
   .section-head h2::before, .about-inner h2::before, .case h3::before { transition: none; }
+  .trainer { transition: none; }
   .case-media.flow, .case-flip .case-media.flow { transform: none; }
   .btn, .chips li, .tile, .arrow, .theme-toggle { transition: none; }
   .cursor-aura { display: none; }
