@@ -421,10 +421,13 @@
     return samples[lo].s;
   };
 
-  // the head glides toward the scroll target instead of jumping to it
+  // the head glides toward the scroll target instead of jumping to it,
+  // with a speed limit so the graph zigzags read as travel, not teleport
   let curS = 0, tgtS = 0, glideRaf = 0;
   const glide = () => {
-    curS += (tgtS - curS) * 0.16;
+    const diff = tgtS - curS;
+    const step = Math.sign(diff) * Math.min(Math.abs(diff) * 0.12, 68);
+    curS += step;
     if (Math.abs(tgtS - curS) < 0.4) curS = tgtS;
     lightAt(curS);
     glideRaf = curS === tgtS ? 0 : requestAnimationFrame(glide);
