@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="css/style.css">
   <script>
     (function () {
-      var t = localStorage.getItem('theme');
+      var t = localStorage.getItem('theme-v2');
       if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
     })();
   </script>
@@ -29,12 +29,18 @@
   <a class="skip-link" href="#experience">Skip to content</a>
   <div class="cursor-aura" aria-hidden="true"></div>
   <div class="trainer mono" aria-hidden="true">
-    <span class="tr-title">training run</span>
-    <span class="tr-row">epoch <b class="tr-epoch">00/20</b></span>
-    <span class="tr-row">loss <b class="tr-loss">2.303</b></span>
-    <span class="tr-row">acc <b class="tr-acc">0.100</b></span>
-    <span class="tr-bar"><span class="tr-fill"></span></span>
-    <span class="tr-pct">0%</span>
+    <div class="tr-dial-wrap">
+      <svg class="tr-dial" viewBox="0 0 120 120" aria-hidden="true"></svg>
+      <div class="tr-center">
+        <b class="tr-pct">0%</b>
+        <span class="tr-title">training run</span>
+      </div>
+    </div>
+    <div class="tr-meta">
+      <span class="tr-row">epoch <b class="tr-epoch">00/20</b></span>
+      <span class="tr-row">loss <b class="tr-loss">2.303</b></span>
+      <span class="tr-row">acc <b class="tr-acc">0.100</b></span>
+    </div>
   </div>
 
   <header class="nav" id="top">
@@ -110,14 +116,6 @@
               <li>PostgreSQL to Power BI dashboards the sales team ran their day on.</li>
             </ul>
             <a class="entry-link mono" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">See it: CRM suite <span class="arrow" aria-hidden="true">&#8599;</span></a>
-          </div>
-        </li>
-
-        <li class="entry entry-edu reveal">
-          <div class="entry-when mono">Aug 2025</div>
-          <div class="entry-body">
-            <h3>Master's in Engineering, ML focus · EIA University</h3>
-            <p class="entry-where mono">1st Class · 94%</p>
           </div>
         </li>
 
@@ -321,14 +319,22 @@
       <div class="about-inner reveal">
         <h2>About</h2>
         <p class="about-lede">
-          I'm Alexey David Velásquez Betancurt, based in Medellín, Colombia. Master's in
-          Engineering, ML focus, 1st Class (94%). Two years shipping data science remotely
-          for US companies.
+          I'm Alexey David Velásquez Betancurt, based in Medellín, Colombia.
+          Two years shipping data science remotely for US companies — now looking
+          for a full-time home on an AI / ML engineering team.
         </p>
         <p>
-          I like systems I can hold end to end. If it can run on your own hardware,
-          I will make it run there. Spanish and English.
+          I like systems I can hold end to end. Give me a hard problem and your
+          stack, and I'll wire the models into it: speech intelligence, LLM agents,
+          interpretable ML. Spanish and English.
         </p>
+        <div class="edu">
+          <span class="edu-label mono">Education</span>
+          <div class="edu-item">
+            <h3>Master's in Engineering, ML focus</h3>
+            <p class="mono">EIA University · 1st Class, 94% · Medellín, 2025</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -336,7 +342,7 @@
     <section class="contact" id="contact">
       <div class="contact-inner reveal">
         <h2>Let's talk.</h2>
-        <p>Looking for an AI engineer who ships whole systems? My inbox is open.</p>
+        <p>Hiring an AI / ML engineer? I'm looking for a full-time team to build with. My inbox is open.</p>
         <div class="contact-cta">
           <a class="btn btn-fire btn-big" href="mailto:alexeyvb135@gmail.com" data-magnetic>Email me <span class="arrow" aria-hidden="true">&#8599;</span></a>
           <a class="btn btn-ghost btn-big" href="https://www.linkedin.com/in/alexey-ve/" target="_blank" rel="noopener">LinkedIn <span class="arrow" aria-hidden="true">&#8599;</span></a>

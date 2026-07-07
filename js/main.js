@@ -32,10 +32,10 @@
       root.classList.add('theming');
       if (isLight()) {
         root.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'dark');
+        localStorage.setItem('theme-v2', 'dark');
       } else {
         root.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
+        localStorage.setItem('theme-v2', 'light');
       }
       applyThemeExtras();
       setTimeout(() => root.classList.remove('theming'), 450);
@@ -740,14 +740,42 @@
     svg.appendChild(headDot);
   };
 
-  // the training console — metrics of the run
+  // the training chronometer — an engraved gold dial, kin to the mandala.
+  // The run's progress is a ring of light walking the dial clockwise
   const trainer = document.querySelector('.trainer');
   const trEpoch = trainer && trainer.querySelector('.tr-epoch');
   const trLoss = trainer && trainer.querySelector('.tr-loss');
   const trAcc = trainer && trainer.querySelector('.tr-acc');
-  const trFill = trainer && trainer.querySelector('.tr-fill');
   const trPct = trainer && trainer.querySelector('.tr-pct');
-  let trKey = '';
+  const trTitle = trainer && trainer.querySelector('.tr-title');
+  const trDial = trainer && trainer.querySelector('.tr-dial');
+  const TR_R = 46, TR_C = 2 * Math.PI * TR_R;
+  let trArc = null, trDot = null, trKey = '';
+  if (trDial) {
+    // engraved tick ring — 20 epoch marks with halves between them
+    for (let i = 0; i < 40; i++) {
+      const a = (Math.PI * 2 * i) / 40 - Math.PI / 2;
+      const mark = i % 2 === 0;
+      const tick = document.createElementNS(NS, 'line');
+      cAttr(tick, {
+        x1: (60 + Math.cos(a) * 50.5).toFixed(2), y1: (60 + Math.sin(a) * 50.5).toFixed(2),
+        x2: (60 + Math.cos(a) * (mark ? 56 : 53.5)).toFixed(2),
+        y2: (60 + Math.sin(a) * (mark ? 56 : 53.5)).toFixed(2),
+        class: mark ? 'tr-tick tr-tick-epoch' : 'tr-tick'
+      });
+      trDial.appendChild(tick);
+    }
+    const track = document.createElementNS(NS, 'circle');
+    cAttr(track, { cx: 60, cy: 60, r: TR_R, class: 'tr-track' });
+    trDial.appendChild(track);
+    trArc = document.createElementNS(NS, 'circle');
+    cAttr(trArc, { cx: 60, cy: 60, r: TR_R, class: 'tr-arc', transform: 'rotate(-90 60 60)' });
+    trArc.style.strokeDasharray = '0 ' + TR_C;
+    trDial.appendChild(trArc);
+    trDot = document.createElementNS(NS, 'circle');
+    cAttr(trDot, { cx: 60, cy: 60 - TR_R, r: 3, class: 'tr-dot' });
+    trDial.appendChild(trDot);
+  }
 
   const lightAt = (s) => {
     litPath.style.strokeDasharray = s + ' ' + (totalLen + 10);
@@ -777,7 +805,7 @@
       paintMandalas(focusY);
     }
 
-    // the console tracks the run: epoch, loss, accuracy, progress
+    // the chronometer tracks the run: the arc of light walks the dial
     if (trainer) {
       const t = totalLen ? Math.min(1, s / totalLen) : 0;
       const done = t >= 0.99;
@@ -789,8 +817,16 @@
         trEpoch.textContent = String(passed).padStart(2, '0') + '/' + anchors.length;
         trLoss.textContent = loss.toFixed(3);
         trAcc.textContent = acc.toFixed(3);
-        trFill.style.width = (t * 100).toFixed(1) + '%';
-        trPct.textContent = done ? 'converged ✓' : Math.round(t * 100) + '%';
+        trPct.textContent = done ? '✓' : Math.round(t * 100) + '%';
+        if (trTitle) trTitle.textContent = done ? 'converged' : 'training run';
+        if (trArc) trArc.style.strokeDasharray = (TR_C * t).toFixed(1) + ' ' + TR_C;
+        if (trDot) {
+          const a = Math.PI * 2 * t - Math.PI / 2;
+          cAttr(trDot, {
+            cx: (60 + Math.cos(a) * TR_R).toFixed(2),
+            cy: (60 + Math.sin(a) * TR_R).toFixed(2)
+          });
+        }
         trainer.classList.toggle('done', done);
       }
     }

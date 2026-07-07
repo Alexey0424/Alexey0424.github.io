@@ -179,59 +179,78 @@ body.aura-on .cursor-aura { opacity: 1; }
 :root[data-theme="light"] .lumen { opacity: 0.45; }
 
 /* --------------------------------------------------------------------------
-   Training console — big in the hero's open right side, then it shrinks
-   and docks into the top-right corner as the run advances
+   Training chronometer — an engraved gold dial, kin to the mandala. Big in
+   the hero's open right side, then it docks into the top-right corner as
+   the run advances. The progress arc is the same light that falls the page
    -------------------------------------------------------------------------- */
 .trainer {
   position: fixed;
-  top: clamp(13rem, 30vh, 19rem);
+  top: clamp(11rem, 26vh, 17rem);
   right: clamp(3rem, 9vw, 12rem);
   z-index: 80;
   display: grid;
-  gap: 0.65em;
-  min-width: 19.5rem;
-  padding: 1.5em 1.7em;
-  font-size: 0.98rem;
+  justify-items: center;
+  gap: 0.85em;
+  padding: 1.5em 1.7em 1.25em;
+  font-size: 1rem;
   line-height: 1.4;
   color: var(--ink-dim);
   background: color-mix(in oklab, var(--bg-deep) 55%, transparent);
   border: 1px solid color-mix(in oklab, var(--line) 60%, transparent);
-  border-radius: 14px;
+  border-radius: 26px;
   backdrop-filter: blur(8px);
   transition: top 0.75s var(--ease-out), right 0.75s var(--ease-out),
-              min-width 0.75s var(--ease-out), font-size 0.75s var(--ease-out),
-              padding 0.75s var(--ease-out), gap 0.75s var(--ease-out),
+              font-size 0.75s var(--ease-out), padding 0.75s var(--ease-out),
+              gap 0.75s var(--ease-out), border-radius 0.75s var(--ease-out),
               opacity 0.9s ease;
 }
 .trainer b { color: var(--terra); font-weight: 500; }
-.tr-title { font-size: 0.74em; opacity: 0.7; letter-spacing: 0.05em; }
-.tr-row { display: flex; justify-content: space-between; gap: 2em; }
-.tr-bar {
-  height: 4px;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--line) 55%, transparent);
-  overflow: hidden;
-  margin-top: 0.15em;
+.tr-dial-wrap { position: relative; width: 10em; height: 10em; }
+.tr-dial { width: 100%; height: 100%; display: block; overflow: visible; }
+.tr-tick { stroke: color-mix(in oklab, var(--gold) 40%, transparent); stroke-width: 1; }
+.tr-tick-epoch { stroke: color-mix(in oklab, var(--gold) 70%, transparent); }
+.tr-track { fill: none; stroke: color-mix(in oklab, var(--line) 85%, transparent); stroke-width: 1.4; }
+.tr-arc {
+  fill: none;
+  stroke: var(--gold-hot);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--gold-hot) 70%, transparent));
 }
-.tr-fill {
-  display: block;
-  width: 0%;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--terra-deep), var(--terra-hot));
+.tr-dot {
+  fill: var(--gold-hot);
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--gold-hot) 90%, transparent));
 }
-.tr-pct { justify-self: end; font-size: 0.85em; }
+.tr-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.2em;
+  text-align: center;
+}
+.tr-pct {
+  font-size: 1.7em;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+}
 .trainer.done .tr-pct { color: var(--terra); }
+.tr-title { font-size: 0.6em; opacity: 0.7; letter-spacing: 0.12em; }
+.tr-meta { display: flex; gap: 1.3em; font-size: 0.7em; }
+.tr-row { display: flex; gap: 0.5em; white-space: nowrap; }
 .trainer.docked {
   top: 4.3rem;
   right: 1rem;
-  min-width: 10rem;
-  font-size: 0.6rem;
-  padding: 0.8em 1em;
-  gap: 0.4em;
+  font-size: 0.5rem;
+  padding: 0.9em;
+  gap: 0;
+  border-radius: 50%;
 }
+.trainer.docked .tr-meta { display: none; }
 @media (max-width: 720px) {
-  .trainer.docked { min-width: 8.5rem; font-size: 0.55rem; }
+  .trainer.docked { font-size: 0.42rem; }
 }
 
 /* --------------------------------------------------------------------------
@@ -877,8 +896,6 @@ html.js .reveal.in { opacity: 1; transform: none; }
 }
 .entry-link:hover { background-size: 100% 1px; }
 .entry-link:hover .arrow { transform: translate(3px, -2px); }
-.entry-edu { padding-bottom: 0.5rem; }
-.entry-edu h3 { font-size: 1.05rem; }
 
 /* --------------------------------------------------------------------------
    Tech stack
@@ -1024,6 +1041,25 @@ html.js .reveal.in { opacity: 1; transform: none; }
   color: var(--ink-dim);
   max-width: 62ch;
 }
+/* education — a quiet engraved line under the story */
+.edu {
+  grid-column: 1 / -1;
+  margin-top: 2.4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 2.4rem;
+}
+.edu-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--terra);
+}
+.edu-item h3 { font-size: 1.08rem; font-weight: 650; }
+.edu-item p { margin-top: 0.3rem; font-size: 0.72rem; color: var(--ink-dim); }
 
 /* --------------------------------------------------------------------------
    Contact — the terra drench (both themes)
