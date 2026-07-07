@@ -16,8 +16,8 @@
   --terra-deep: oklch(58% 0.14 38);
   --terra-ink:  oklch(20% 0.045 40);
   /* the light is champagne gold; matter stays terracotta */
-  --gold:     oklch(85% 0.095 88);
-  --gold-hot: oklch(93% 0.055 95);
+  --gold:     oklch(86% 0.105 87);
+  --gold-hot: oklch(94% 0.06 96);
   --btn-bg:  var(--terra);
   --btn-ink: var(--terra-ink);
   --spot-alpha: 0.12;
@@ -364,7 +364,7 @@ main, .footer { position: relative; z-index: 1; }
 }
 .spine-lit {
   fill: none;
-  stroke: color-mix(in oklab, var(--gold) 60%, transparent);
+  stroke: color-mix(in oklab, var(--gold) 68%, transparent);
   stroke-width: 1.3;
   stroke-linecap: round;
 }
@@ -387,11 +387,14 @@ html.introing .trainer {
   opacity: 0;
   pointer-events: none;
 }
-/* mandalas — golden linework that blooms behind key text; the halo
-   embraces the words while they stay crisp on the layer above */
+/* mandalas — engraved golden linework behind the page. Three line
+   weights read as craft: hairline (fine), body (line), accent (ray).
+   The pulse classes are the energy: a wave that converges at the intro,
+   then a faint heartbeat forever after. Text stays crisp a layer above */
 .man-layer { opacity: 0.95; }
-:root[data-theme="light"] .man-layer { opacity: 0.6; }
+:root[data-theme="light"] .man-layer { opacity: 0.7; }
 .man-line { fill: none; stroke: var(--gold); stroke-width: 1; }
+.man-fine { fill: none; stroke: color-mix(in oklab, var(--gold) 78%, transparent); stroke-width: 0.7; }
 .man-ray {
   fill: none;
   stroke: var(--gold-hot);
@@ -399,13 +402,48 @@ html.introing .trainer {
   stroke-linecap: round;
 }
 .man-gem { fill: var(--gold); }
+.man-node {
+  fill: var(--terra-hot);
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--terra-hot) 90%, transparent));
+}
 .man-spark {
   fill: var(--gold-hot);
-  filter: drop-shadow(0 0 3px oklch(90% 0.08 90 / 0.9));
+  filter: drop-shadow(0 0 3px color-mix(in oklab, var(--gold-hot) 80%, transparent));
+}
+/* the intro pulse — a ring of light that falls into the point,
+   and the shockwave the point releases */
+.man-wave {
+  fill: none;
+  stroke: var(--gold-hot);
+  filter: drop-shadow(0 0 9px color-mix(in oklab, var(--gold-hot) 85%, transparent));
+}
+.man-wave-halo { fill: none; stroke: color-mix(in oklab, var(--gold) 45%, transparent); }
+.man-shock {
+  fill: none;
+  stroke: var(--gold-hot);
+  filter: drop-shadow(0 0 14px color-mix(in oklab, var(--gold-hot) 80%, transparent));
+}
+/* idle heartbeat — every few seconds a faint ring converges to the heart */
+.man-idle { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.man-iring {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.mandala.alive .man-idle {
+  animation: man-converge var(--ipd, 8s) cubic-bezier(0.5, 0, 0.75, 0.5) var(--idel, 0s) infinite;
+}
+html.introing .man-idle { animation: none; }
+@keyframes man-converge {
+  0%   { transform: scale(1); opacity: 0; }
+  7%   { opacity: var(--imax, 0.25); }
+  42%  { transform: scale(0.03); opacity: 0; }
+  100% { transform: scale(0.03); opacity: 0; }
 }
 .mandala { transform-box: fill-box; transform-origin: center; }
 .mandala.spin { animation: man-spin 150s linear infinite; }
-.mandala.man-hero.spin { animation-duration: 260s; }
+.mandala.man-hero.spin { animation-duration: 320s; }
 @keyframes man-spin { to { transform: rotate(360deg); } }
 .spine-glow { text-shadow: 0 0 28px oklch(68% 0.15 40 / 0.45); }
 :root[data-theme="light"] .spine-glow { text-shadow: 0 0 26px oklch(55% 0.15 40 / 0.35); }
@@ -1083,6 +1121,7 @@ html.js .reveal.in { opacity: 1; transform: none; }
   .section-head h2::before, .about-inner h2::before, .case h3::before { transition: none; }
   .trainer { transition: none; }
   .mandala.spin { animation: none; }
+  .mandala.alive .man-idle { animation: none; }
   .case-media.flow, .case-flip .case-media.flow { transform: none; }
   .btn, .chips li, .tile, .arrow, .theme-toggle { transition: none; }
   .cursor-aura { display: none; }
