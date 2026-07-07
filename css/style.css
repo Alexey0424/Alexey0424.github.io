@@ -301,7 +301,7 @@ body.aura-on .cursor-aura { opacity: 1; }
 #spine {
   position: absolute;
   top: 0; left: 0;
-  z-index: 0;
+  z-index: 2; /* the light travels OVER the page */
   pointer-events: none;
 }
 main, .footer { position: relative; z-index: 1; }
@@ -555,19 +555,74 @@ html.js .reveal.in { opacity: 1; transform: none; }
   transition: transform 0.6s var(--ease-out), border-color 0.4s ease;
 }
 .case-media:hover .shot { border-color: var(--terra-deep); }
-.duo {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.8rem;
-  align-items: start;
+/* flow graphs — n8n-style pipelines in 2.5D */
+.case-media.flow {
+  transform: perspective(1100px) rotateX(5deg) rotateY(-5deg);
+  transform-style: preserve-3d;
+  will-change: transform;
+  border-radius: 16px;
+  background:
+    radial-gradient(28rem 20rem at 50% 0%, var(--haze), transparent 72%),
+    color-mix(in oklab, var(--bg-deep) 82%, transparent);
+  box-shadow: 0 34px 60px -30px oklch(8% 0.01 40 / 0.75);
+  padding: clamp(0.75rem, 2vw, 1.5rem);
 }
-.duo .shot {
-  width: 100%;
-  aspect-ratio: 7 / 9;
-  object-fit: cover;
-  object-position: top center;
+.case-flip .case-media.flow { transform: perspective(1100px) rotateX(5deg) rotateY(5deg); }
+:root[data-theme="light"] .case-media.flow {
+  box-shadow: 0 34px 60px -34px oklch(35% 0.06 40 / 0.5);
 }
-.duo .shot:hover { transform: translateY(-5px); }
+.fg { width: 100%; height: auto; display: block; }
+.fg-node rect {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+  stroke-width: 1.2;
+  transition: fill 0.45s ease, stroke 0.45s ease;
+}
+.fg-node .fg-t {
+  fill: var(--ink);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 650;
+}
+.fg-node .fg-s {
+  fill: var(--ink-dim);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+}
+.fg-node .fg-sock {
+  fill: var(--bg);
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+  transition: fill 0.45s ease, stroke 0.45s ease;
+}
+.fg-node.on rect {
+  stroke: var(--terra);
+  fill: color-mix(in oklab, var(--terra) 13%, var(--surface));
+  filter: drop-shadow(0 0 10px oklch(68% 0.15 40 / 0.5));
+}
+.fg-node.on .fg-t { fill: var(--terra-hot); }
+.fg-node.on .fg-sock { fill: var(--terra); stroke: var(--terra-hot); }
+.fg-edge {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.6;
+  transition: stroke 0.45s ease;
+}
+.fg-edge.on {
+  stroke: var(--terra);
+  stroke-dasharray: 6 8;
+  animation: dash-flow 1.2s linear infinite;
+  filter: drop-shadow(0 0 5px oklch(68% 0.15 40 / 0.6));
+}
+@keyframes dash-flow { to { stroke-dashoffset: -14; } }
+
+/* key words ignite when the light reaches their zone */
+.kw { transition: color 0.6s ease, text-shadow 0.6s ease; }
+.zone-on .kw,
+.entry.lit .kw {
+  color: var(--terra);
+  text-shadow: 0 0 18px oklch(68% 0.15 40 / 0.35);
+}
 
 /* cursor spotlight */
 [data-spotlight] { position: relative; overflow: hidden; }
@@ -588,59 +643,7 @@ html.js .reveal.in { opacity: 1; transform: none; }
 .case-media[data-spotlight]::after { display: none; }
 .case-media .shot { position: relative; }
 
-/* CRM flow diagram */
-.flow-diagram {
-  width: 100%;
-  height: auto;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background:
-    radial-gradient(30rem 20rem at 50% 0%, var(--haze), transparent 70%),
-    var(--bg-deep);
-  padding: clamp(0.5rem, 2vw, 1.25rem);
-}
-.flow-diagram .node rect {
-  fill: var(--surface);
-  stroke: var(--line-strong);
-  stroke-width: 1;
-}
-.flow-diagram .node.hub rect { stroke: var(--terra-deep); }
-.flow-diagram text {
-  fill: var(--ink);
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 650;
-}
-.flow-diagram text.sub {
-  fill: var(--ink-dim);
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  font-weight: 400;
-}
-.flow-diagram .edges path {
-  fill: none;
-  stroke: color-mix(in oklab, var(--terra-deep) 60%, transparent);
-  stroke-width: 1.5;
-  stroke-dasharray: 5 7;
-  animation: dash-flow 1.3s linear infinite;
-}
-@keyframes dash-flow { to { stroke-dashoffset: -12; } }
-.flow-diagram circle {
-  fill: var(--terra-hot);
-  filter: drop-shadow(0 0 4px oklch(68% 0.15 40 / 0.9));
-}
-.pulse-a { offset-path: path("M166 66 C 200 66 194 66 228 66 L 356 66 C 396 66 386 122 420 126"); }
-.pulse-b { offset-path: path("M166 190 C 200 190 194 190 228 190 L 356 190 C 396 190 386 138 420 132"); }
-.pulse-c { offset-path: path("M166 314 C 200 314 194 314 228 314 L 356 314 C 396 314 386 260 420 254"); }
-.pulse-a, .pulse-b, .pulse-c { animation: travel 3.9s linear infinite; }
-.pulse-b { animation-delay: 1.3s; }
-.pulse-c { animation-delay: 2.6s; }
-@keyframes travel {
-  0%   { offset-distance: 0%;   opacity: 0; }
-  6%   { opacity: 1; }
-  92%  { opacity: 1; }
-  100% { offset-distance: 100%; opacity: 0; }
-}
+/* (project media are flow graphs, styled above) */
 
 /* --------------------------------------------------------------------------
    Experience timeline
@@ -958,8 +961,8 @@ html.js .reveal.in { opacity: 1; transform: none; }
   .load-rise { animation: none; }
   html.js .reveal { opacity: 1; transform: none; transition: none; }
   .pulse-dot::after { animation: none; opacity: 0; }
-  .flow-diagram .edges path { animation: none; }
-  .pulse-a, .pulse-b, .pulse-c { animation: none; opacity: 0.9; }
-  .btn, .chips li, .tile, .shot, .arrow, .theme-toggle { transition: none; }
+  .fg-edge.on { animation: none; stroke-dasharray: none; }
+  .case-media.flow, .case-flip .case-media.flow { transform: none; }
+  .btn, .chips li, .tile, .arrow, .theme-toggle { transition: none; }
   .cursor-aura { display: none; }
 }

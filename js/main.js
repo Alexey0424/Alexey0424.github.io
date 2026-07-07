@@ -44,12 +44,131 @@
   applyThemeExtras();
 
   /* ------------------------------------------------------------------
-     The falling light — one luminous thread runs the whole page,
-     passing through every node: the name, each job, each project,
-     each section. Scrolling makes the light fall along it, igniting
-     nodes as it passes.
+     Project flow graphs — n8n-style pipelines. Each stage is a node
+     the falling light will walk through, one epoch at a time.
      ------------------------------------------------------------------ */
   const NS = 'http://www.w3.org/2000/svg';
+  const cAttr = (el, attrs) => { for (const k in attrs) el.setAttribute(k, attrs[k]); };
+
+  const FLOWS = {
+    orca: [
+      ['audio in', 'raw call recording'],
+      ['ASR', 'Whisper · word timestamps'],
+      ['diarize + emotion', 'pyannote · emotion2vec'],
+      ['LLM KPIs', 'Ollama · coaching rubric'],
+      ['pgvector', 'PostgreSQL · HNSW index'],
+      ['RAG agent', 'n8n · chat with the archive'],
+      ['report + chat', 'PDF scorecard out']
+    ],
+    scraper: [
+      ['prompt + URL', 'plain English request'],
+      ['plan', 'local LLM designs the crawl'],
+      ['crawl', 'best-first frontier'],
+      ['classify', 'heuristics + LLM blend'],
+      ['extract', 'schema-constrained JSON'],
+      ['verify', 'grounded against the page'],
+      ['spreadsheet', 'xlsx · csv · jsonl']
+    ],
+    crm: [
+      ['webhooks', 'FUB · JustCall · Forms'],
+      ['normalize', 'E.164 · clean payloads'],
+      ['dedupe', 'person matching'],
+      ['route', 'channels · round robin'],
+      ['log + summarize', 'AI summary · sentiment'],
+      ['Slack + CRM', 'the team sees everything']
+    ]
+  };
+
+  const buildFlows = () => {
+    document.querySelectorAll('.flow[data-flow]').forEach((box) => {
+      const nodes = FLOWS[box.dataset.flow];
+      if (!nodes) return;
+      const W = 560, NW = 210, NH = 56, GAP = 78, PAD = 14;
+      const H = PAD * 2 + NH + (nodes.length - 1) * GAP;
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('class', 'fg');
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      svg.setAttribute('aria-hidden', 'true');
+
+      const pos = nodes.map((_, i) => ({
+        x: i % 2 ? W - 36 - NW : 36,
+        y: PAD + i * GAP
+      }));
+
+      // edges first (under the nodes)
+      const edges = [];
+      for (let i = 1; i < nodes.length; i++) {
+        const a = pos[i - 1], b = pos[i];
+        const fromX = (i % 2) ? a.x + NW : a.x;        // leave from the side facing b
+        const toX = (i % 2) ? b.x : b.x + NW;
+        const fy = a.y + NH / 2, ty = b.y + NH / 2;
+        const p = document.createElementNS(NS, 'path');
+        const dx = (toX - fromX) * 0.4;
+        p.setAttribute('d', 'M ' + fromX + ' ' + fy +
+          ' C ' + (fromX + dx) + ' ' + fy + ' ' + (toX - dx) + ' ' + ty + ' ' + toX + ' ' + ty);
+        p.setAttribute('class', 'fg-edge');
+        svg.appendChild(p);
+        edges.push(p);
+      }
+
+      nodes.forEach((n, i) => {
+        const g = document.createElementNS(NS, 'g');
+        g.setAttribute('class', 'fg-node');
+        g.setAttribute('transform', 'translate(' + pos[i].x + ',' + pos[i].y + ')');
+        const rect = document.createElementNS(NS, 'rect');
+        cAttr(rect, { width: NW, height: NH, rx: 11 });
+        g.appendChild(rect);
+        const t1 = document.createElementNS(NS, 'text');
+        cAttr(t1, { x: 14, y: 24, class: 'fg-t' });
+        t1.textContent = n[0];
+        g.appendChild(t1);
+        const t2 = document.createElementNS(NS, 'text');
+        cAttr(t2, { x: 14, y: 42, class: 'fg-s' });
+        t2.textContent = n[1];
+        g.appendChild(t2);
+        const sock = document.createElementNS(NS, 'circle');
+        cAttr(sock, { cx: i % 2 ? 0 : NW, cy: NH / 2, r: 3.5, class: 'fg-sock' });
+        g.appendChild(sock);
+        if (i > 0) g.__edge = edges[i - 1];
+        svg.appendChild(g);
+      });
+
+      box.appendChild(svg);
+    });
+  };
+  buildFlows();
+
+  /* ------------------------------------------------------------------
+     2.5D tilt — flow graphs sit in perspective and lean with the cursor
+     ------------------------------------------------------------------ */
+  if (finePointer && !reducedMotion) {
+    document.querySelectorAll('[data-tilt]').forEach((el) => {
+      const flip = !!el.closest('.case-flip');
+      const rx0 = 5, ry0 = flip ? 5 : -5;
+      let cx = rx0, cy = ry0, tx = rx0, ty = ry0, raf = 0;
+      const step = () => {
+        cx += (tx - cx) * 0.12;
+        cy += (ty - cy) * 0.12;
+        el.style.transform = 'perspective(1100px) rotateX(' + cx.toFixed(2) + 'deg) rotateY(' + cy.toFixed(2) + 'deg)';
+        raf = (Math.abs(tx - cx) > 0.02 || Math.abs(ty - cy) > 0.02) ? requestAnimationFrame(step) : 0;
+      };
+      const kick = () => { if (!raf) raf = requestAnimationFrame(step); };
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        tx = rx0 + (0.5 - (e.clientY - r.top) / r.height) * 9;
+        ty = ry0 + ((e.clientX - r.left) / r.width - 0.5) * 11;
+        kick();
+      }, { passive: true });
+      el.addEventListener('pointerleave', () => { tx = rx0; ty = ry0; kick(); });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     The falling light — one luminous thread runs the whole page,
+     passing through every node: the name, each job, each project,
+     and every stage of every flow graph. Scrolling makes the light
+     fall along it, igniting nodes as it passes.
+     ------------------------------------------------------------------ */
   const svg = document.createElementNS(NS, 'svg');
   svg.id = 'spine';
   svg.setAttribute('aria-hidden', 'true');
@@ -59,8 +178,6 @@
   let anchors = [];      // {el, x, y, s, node, kind}
   let totalLen = 0;
   let samples = [];      // [{s, y}] for scroll → length lookup
-
-  const cAttr = (el, attrs) => { for (const k in attrs) el.setAttribute(k, attrs[k]); };
 
   const collectAnchors = () => {
     const sy = window.scrollY;
@@ -90,9 +207,19 @@
         });
       }
       if (sec.classList.contains('work')) {
-        sec.querySelectorAll('.case h3').forEach((h3) => {
-          const r = h3.getBoundingClientRect();
-          push(h3, rail ? 26 : r.left + r.width / 2, r.top + sy + r.height / 2, 'title');
+        sec.querySelectorAll('.case').forEach((cs) => {
+          const h3 = cs.querySelector('h3');
+          if (h3) {
+            const r = h3.getBoundingClientRect();
+            push(h3, rail ? 26 : r.left + r.width / 2, r.top + sy + r.height / 2, 'title');
+          }
+          cs.querySelectorAll('.fg-node').forEach((gn) => {
+            const r = gn.getBoundingClientRect();
+            const a = { el: gn, x: Math.max(20, rail ? 26 : r.left + r.width / 2), y: r.top + sy + r.height / 2, kind: 'gnode' };
+            a.edge = gn.__edge || null;
+            a.zone = cs;
+            out.push(a);
+          });
         });
         sec.querySelectorAll('.ml-row').forEach((row, i) => {
           const r = row.getBoundingClientRect();
@@ -162,8 +289,9 @@
       a.s = best;
     }
 
-    // nodes
+    // nodes — flow-graph stages draw their own visuals, so no circle there
     for (const a of anchors) {
+      if (a.kind === 'gnode') { a.node = null; continue; }
       const n = document.createElementNS(NS, 'circle');
       cAttr(n, { cx: a.x, cy: a.y, r: a.kind === 'entry' ? 6 : 5, class: 'spine-node' });
       svg.appendChild(n);
@@ -193,9 +321,18 @@
     for (const a of anchors) {
       const on = a.s <= s + 2;
       if (on) passed++;
-      a.node.classList.toggle('on', on);
-      if (a.kind === 'entry') a.el.classList.toggle('lit', on);
-      else a.el.classList.toggle('spine-glow', on);
+      if (a.node) a.node.classList.toggle('on', on);
+      if (a.kind === 'gnode') {
+        a.el.classList.toggle('on', on);
+        if (a.edge) a.edge.classList.toggle('on', on);
+        if (a.zone) a.zone.classList.toggle('zone-on', on);
+      } else if (a.kind === 'entry') {
+        a.el.classList.toggle('lit', on);
+      } else {
+        a.el.classList.toggle('spine-glow', on);
+        const zone = a.el.closest('.case');
+        if (zone) zone.classList.toggle('zone-on', on);
+      }
     }
 
     // the training run: scroll = epochs, loss falls, accuracy climbs

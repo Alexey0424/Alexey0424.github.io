@@ -90,7 +90,7 @@
             <h3>Machine Learning Engineer · EIA University</h3>
             <p class="entry-where mono">Medellín, Colombia</p>
             <ul class="entry-points">
-              <li>Turbine fault detection from vibration data: LightGBM and XGBoost, up to <strong class="mono">99.5%</strong> accuracy.</li>
+              <li>Turbine <span class="kw">fault detection</span> from vibration data: LightGBM and XGBoost, up to <strong class="mono">99.5%</strong> accuracy.</li>
               <li>Model tournaments: Random Forest, SVM, autoencoders. PostgreSQL ingestion.</li>
             </ul>
             <a class="entry-link mono" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener">See it: Turbine FDD <span class="arrow" aria-hidden="true">&#8599;</span></a>
@@ -103,7 +103,7 @@
             <h3>Data Scientist · Luis Buys Homes</h3>
             <p class="entry-where mono">Florida, US · remote</p>
             <ul class="entry-points">
-              <li>BERT sentiment over first-contact sales calls, containerized with Docker.</li>
+              <li><span class="kw">BERT sentiment</span> over first-contact sales calls, containerized with Docker.</li>
               <li>PostgreSQL to Power BI dashboards the sales team ran their day on.</li>
             </ul>
             <a class="entry-link mono" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">See it: CRM suite <span class="arrow" aria-hidden="true">&#8599;</span></a>
@@ -124,7 +124,7 @@
             <h3>Data Scientist · Cactus Home Offer</h3>
             <p class="entry-where mono">Florida, US · remote</p>
             <ul class="entry-points">
-              <li>Speech intelligence for sales calls: ASR, pattern detection, SHAP. Up to <strong class="mono">80%</strong> less manual review.</li>
+              <li><span class="kw">Speech intelligence</span> for sales calls: ASR, pattern detection, SHAP. Up to <strong class="mono">80%</strong> less manual review.</li>
               <li>LLM KPI extraction in mixed Spanish and English, served in real time through n8n.</li>
             </ul>
             <a class="entry-link mono" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">Public demo: ORCA <span class="arrow" aria-hidden="true">&#8599;</span></a>
@@ -145,8 +145,9 @@
         <div class="case-text">
           <h3>Call intelligence, fully self-hosted.</h3>
           <p class="case-story">
-            A raw sales call goes in. Out come the transcript, the speaker emotions, the KPIs,
-            a coaching scorecard and a searchable archive you can chat with. Nothing leaves the machine.
+            A raw sales call goes in. Out come the <span class="kw">transcript</span>, the speaker
+            <span class="kw">emotions</span>, the KPIs, a coaching scorecard and a searchable archive
+            you can chat with. <span class="kw">Nothing leaves the machine.</span>
           </p>
           <ul class="case-results">
             <li><strong class="mono">5</strong> GPU services, one <code>docker compose up</code></li>
@@ -158,10 +159,7 @@
           </ul>
           <a class="case-link" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
         </div>
-        <div class="case-media duo">
-          <img class="shot" src="assets/orca-dashboard.png" alt="ORCA dashboard: diarized sales call with per-speaker emotion, KPIs and scorecard" loading="lazy" decoding="async" width="1200" height="1929">
-          <img class="shot" src="assets/orca-report.png" alt="ORCA branded PDF call report with emotion timeline and coaching scorecard" loading="lazy" decoding="async" width="1000" height="1500">
-        </div>
+        <div class="case-media flow" data-flow="orca" data-tilt role="img" aria-label="ORCA pipeline: audio, ASR, diarization and emotion, LLM KPIs, pgvector, RAG agent, report and chat"></div>
       </article>
 
       <!-- SCRAPER -->
@@ -169,8 +167,9 @@
         <div class="case-text">
           <h3>The scraper that can't make things up.</h3>
           <p class="case-story">
-            Plain English in, spreadsheet out. A local LLM plans the crawl, and every extracted
-            value is checked against the page before export.
+            <span class="kw">Plain English</span> in, <span class="kw">spreadsheet</span> out.
+            A local LLM plans the crawl, and every extracted value is
+            <span class="kw">checked against the page</span> before export.
           </p>
           <ul class="case-results">
             <li><strong class="mono">151</strong> tests, fully offline</li>
@@ -182,9 +181,7 @@
           </ul>
           <a class="case-link" href="https://github.com/Alexey0424/llm-web-scraper" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
         </div>
-        <div class="case-media" data-spotlight>
-          <img class="shot" src="assets/scraper-live.png" alt="LLM web scraper mid-crawl: live plan, progress, ETA and per-call timeline in the dark UI" loading="lazy" decoding="async" width="1440" height="1000">
-        </div>
+        <div class="case-media flow" data-flow="scraper" data-tilt role="img" aria-label="Scraper pipeline: prompt and URL, plan, crawl, classify, extract, verify, spreadsheet"></div>
       </article>
 
       <!-- CRM SUITE -->
@@ -193,7 +190,8 @@
           <h3>A sales team's nervous system.</h3>
           <p class="case-story">
             Leads, calls and stage changes flow between the CRM, the phone system, Slack and
-            Google Forms with no human in the middle. Ran in production for a US real estate team.
+            Google Forms with <span class="kw">no human in the middle</span>. Ran in
+            <span class="kw">production</span> for a US real estate team.
           </p>
           <ul class="case-results">
             <li><strong class="mono">3</strong> event-driven pipelines</li>
@@ -205,62 +203,7 @@
           </ul>
           <a class="case-link" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
         </div>
-        <div class="case-media" data-spotlight>
-          <svg class="flow-diagram" viewBox="0 0 560 380" role="img" aria-label="Event flow: CRM webhooks, Google Form and JustCall feed three scenarios that write to Slack and the CRM">
-            <g class="node" transform="translate(16,40)">
-              <rect width="150" height="52" rx="10"/>
-              <text x="14" y="22">Follow Up Boss</text>
-              <text x="14" y="40" class="sub">stage webhooks</text>
-            </g>
-            <g class="node" transform="translate(16,164)">
-              <rect width="150" height="52" rx="10"/>
-              <text x="14" y="22">Google Form</text>
-              <text x="14" y="40" class="sub">cold lead intake</text>
-            </g>
-            <g class="node" transform="translate(16,288)">
-              <rect width="150" height="52" rx="10"/>
-              <text x="14" y="22">JustCall</text>
-              <text x="14" y="40" class="sub">6 webhook topics</text>
-            </g>
-            <g class="node hub" transform="translate(228,40)">
-              <rect width="128" height="52" rx="10"/>
-              <text x="14" y="22">Scenario A</text>
-              <text x="14" y="40" class="sub">route + notify</text>
-            </g>
-            <g class="node hub" transform="translate(228,164)">
-              <rect width="128" height="52" rx="10"/>
-              <text x="14" y="22">Scenario B</text>
-              <text x="14" y="40" class="sub">dedupe + assign</text>
-            </g>
-            <g class="node hub" transform="translate(228,288)">
-              <rect width="128" height="52" rx="10"/>
-              <text x="14" y="22">Scenario C</text>
-              <text x="14" y="40" class="sub">match + log call</text>
-            </g>
-            <g class="node" transform="translate(420,102)">
-              <rect width="124" height="52" rx="10"/>
-              <text x="14" y="22">Slack</text>
-              <text x="14" y="40" class="sub">routed channels</text>
-            </g>
-            <g class="node" transform="translate(420,226)">
-              <rect width="124" height="52" rx="10"/>
-              <text x="14" y="22">CRM record</text>
-              <text x="14" y="40" class="sub">person + call log</text>
-            </g>
-            <g class="edges">
-              <path d="M166 66 C 200 66, 194 66, 228 66"/>
-              <path d="M166 190 C 200 190, 194 190, 228 190"/>
-              <path d="M166 314 C 200 314, 194 314, 228 314"/>
-              <path d="M356 66 C 396 66, 386 122, 420 126"/>
-              <path d="M356 190 C 396 190, 386 138, 420 132"/>
-              <path d="M356 190 C 396 190, 386 244, 420 248"/>
-              <path d="M356 314 C 396 314, 386 260, 420 254"/>
-            </g>
-            <circle class="pulse-a" cx="166" cy="66" r="3.5"/>
-            <circle class="pulse-b" cx="166" cy="190" r="3.5"/>
-            <circle class="pulse-c" cx="166" cy="314" r="3.5"/>
-          </svg>
-        </div>
+        <div class="case-media flow" data-flow="crm" data-tilt role="img" aria-label="CRM pipeline: webhooks, normalize, dedupe, route, log and summarize, Slack and CRM"></div>
       </article>
 
       <!-- Applied ML, compact -->
