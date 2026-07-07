@@ -267,72 +267,181 @@
     mands = [];
     const layer = manEl('g', {}, 'man-layer');
     const sy = window.scrollY;
-    const cap = document.documentElement.clientWidth * 0.38;
+    const docW = document.documentElement.clientWidth;
+    const vh = window.innerHeight;
+    const cap = docW * 0.38;
+
+    const P = (cx, cy, a, r) => [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+    // pointed lotus petal: two mirrored curves meeting at a sharp tip
+    const petal = (cx, cy, a, r0, r1, w) => {
+      const [bx, by] = P(cx, cy, a, r0);
+      const [tx, ty] = P(cx, cy, a, r1);
+      const nx = Math.cos(a + Math.PI / 2) * w, ny = Math.sin(a + Math.PI / 2) * w;
+      const mx = (bx + tx) / 2, my = (by + ty) / 2;
+      return 'M ' + bx + ' ' + by +
+             ' Q ' + (mx + nx) + ' ' + (my + ny) + ' ' + tx + ' ' + ty +
+             ' Q ' + (mx - nx) + ' ' + (my - ny) + ' ' + bx + ' ' + by + ' Z';
+    };
+    const record = (g, cx, cy, R, maxO) => {
+      layer.appendChild(g);
+      mands.push({ g, els: [...g.children], top: cy - R - 90, bottom: cy + R * 0.55, last: -1, maxO });
+    };
+    const adder = (g) => (node, o, v) => {
+      node.__o = o; node.__v = v;
+      node.style.opacity = 0;
+      g.appendChild(node);
+    };
+
+    // ------------------------------------------------------------------
+    // the main mandala — after mandala.png: a golden burst of rays, two
+    // offset crowns of pointed lotus petals, drifting sparks. Centered
+    // exactly where the falling light wakes up, filling the first view.
+    // ------------------------------------------------------------------
+    {
+      const cx = docW * 0.5;
+      const cy = vh * 0.45;
+      const R = Math.max(150, Math.min(vh * 0.46, docW * 0.42));
+      const g = manEl('g', {}, 'mandala man-hero');
+      const add = adder(g);
+
+      // 0 · core glow
+      add(manEl('circle', { cx, cy, r: R * 0.55, fill: 'url(#manGrad)' }), 0, 0.95);
+      // 1 · star rays — 8 long, 8 short between them
+      for (let i = 0; i < 16; i++) {
+        const a = (Math.PI * 2 * i) / 16;
+        const [x1, y1] = P(cx, cy, a, R * 0.015);
+        const [x2, y2] = P(cx, cy, a, i % 2 ? R * 0.2 : R * 0.37);
+        add(manEl('line', { x1, y1, x2, y2 }, 'man-ray'), 1, i % 2 ? 0.4 : 0.65);
+      }
+      // 2 · fine burst
+      for (let i = 0; i < 32; i++) {
+        const a = (Math.PI * 2 * i) / 32 + Math.PI / 32;
+        const [x1, y1] = P(cx, cy, a, R * 0.05);
+        const [x2, y2] = P(cx, cy, a, R * 0.13);
+        add(manEl('line', { x1, y1, x2, y2 }, 'man-line'), 2, 0.3);
+      }
+      // 3 · inner ring of slender petals
+      for (let i = 0; i < 16; i++) {
+        const a = (Math.PI * 2 * i) / 16;
+        add(manEl('path', { d: petal(cx, cy, a, R * 0.12, R * 0.3, R * 0.028) }, 'man-line'), 3, 0.42);
+      }
+      // 4 · star lattice — two rotated squares
+      for (let k = 0; k < 2; k++) {
+        const pts = [];
+        for (let i = 0; i < 4; i++) {
+          const a = (Math.PI * 2 * i) / 4 + (k ? Math.PI / 4 : 0);
+          pts.push(P(cx, cy, a, R * 0.52).join(','));
+        }
+        add(manEl('polygon', { points: pts.join(' ') }, 'man-line'), 4, 0.2);
+      }
+      // 5 · mid lotus crown, each petal with an inner echo
+      for (let i = 0; i < 8; i++) {
+        const a = (Math.PI * 2 * i) / 8;
+        add(manEl('path', { d: petal(cx, cy, a, R * 0.26, R * 0.62, R * 0.085) }, 'man-line'), 5, 0.45);
+        add(manEl('path', { d: petal(cx, cy, a, R * 0.28, R * 0.5, R * 0.045) }, 'man-line'), 5, 0.3);
+      }
+      // 6 · outer lotus crown, offset half a step
+      for (let i = 0; i < 8; i++) {
+        const a = (Math.PI * 2 * i) / 8 + Math.PI / 8;
+        add(manEl('path', { d: petal(cx, cy, a, R * 0.4, R * 0.88, R * 0.075) }, 'man-line'), 6, 0.38);
+        add(manEl('path', { d: petal(cx, cy, a, R * 0.42, R * 0.74, R * 0.04) }, 'man-line'), 6, 0.26);
+      }
+      // 7 · sparks scattered by the golden angle
+      for (let i = 0; i < 20; i++) {
+        const a = i * 2.399963;
+        const r = R * (0.5 + ((i * 37) % 11) / 20);
+        const [x, y] = P(cx, cy, a, r);
+        add(manEl('circle', { cx: x, cy: y, r: i % 3 ? 1.1 : 1.7 }, 'man-spark'), 7, 0.7);
+      }
+      // 8 · whisper ring
+      add(manEl('circle', { cx, cy, r: R, 'stroke-dasharray': '1 14' }, 'man-line'), 8, 0.16);
+
+      record(g, cx, cy, R, 8);
+    }
+
+    // ------------------------------------------------------------------
+    // the scroll mandalas — four distinct recipes, cycled, so no two
+    // neighbours feel alike and none repeats the main one
+    // ------------------------------------------------------------------
     const targets = [];
-    const hero = document.querySelector('.hero-name');
-    if (hero) targets.push({ el: hero, R: 290 });
     document.querySelectorAll('.section-head h2, .about-inner h2')
       .forEach((el) => targets.push({ el, R: 195 }));
     document.querySelectorAll('.case h3')
       .forEach((el) => targets.push({ el, R: 165 }));
 
-    targets.forEach(({ el, R }) => {
+    targets.forEach(({ el, R }, ti) => {
       R = Math.min(R, cap);
       const tr = textRect(el);
       const cx = tr.left + tr.width / 2;
       const cy = tr.top + sy + tr.height / 2;
       const g = manEl('g', {}, 'mandala');
-      const add = (node, o, v) => {
-        node.__o = o; node.__v = v;
-        node.style.opacity = 0;
-        g.appendChild(node);
-      };
+      const add = adder(g);
+      const kind = ['lotus', 'compass', 'star', 'orbits'][ti % 4];
 
-      // 0 · halo — the warm light that embraces the text
-      add(manEl('circle', { cx, cy, r: R * 0.92, fill: 'url(#manGrad)' }), 0, 0.85);
-      // 1 · inner ring
-      add(manEl('circle', { cx, cy, r: R * 0.16 }, 'man-line'), 1, 0.4);
-      // 2 · spokes
-      for (let i = 0; i < 16; i++) {
-        const a = (Math.PI * 2 * i) / 16;
-        add(manEl('line', {
-          x1: cx + Math.cos(a) * R * 0.24, y1: cy + Math.sin(a) * R * 0.24,
-          x2: cx + Math.cos(a) * R * 0.42, y2: cy + Math.sin(a) * R * 0.42
-        }, 'man-line'), 2, 0.3);
-      }
-      // 3 · mid ring
-      add(manEl('circle', { cx, cy, r: R * 0.5 }, 'man-line'), 3, 0.42);
-      // 4 · petals
-      for (let i = 0; i < 12; i++) {
-        const a = (Math.PI * 2 * i) / 12 + Math.PI / 12;
-        const bx = cx + Math.cos(a) * R * 0.5, by = cy + Math.sin(a) * R * 0.5;
-        const tx = cx + Math.cos(a) * R * 0.76, ty = cy + Math.sin(a) * R * 0.76;
-        const nx = Math.cos(a + Math.PI / 2) * R * 0.09;
-        const ny = Math.sin(a + Math.PI / 2) * R * 0.09;
-        const mx = (bx + tx) / 2, my = (by + ty) / 2;
-        add(manEl('path', {
-          d: 'M ' + bx + ' ' + by +
-             ' Q ' + (mx + nx) + ' ' + (my + ny) + ' ' + tx + ' ' + ty +
-             ' Q ' + (mx - nx) + ' ' + (my - ny) + ' ' + bx + ' ' + by + ' Z'
-        }, 'man-line'), 4, 0.35);
-      }
-      // 5 · beaded ring
-      add(manEl('circle', { cx, cy, r: R * 0.84, 'stroke-dasharray': '2 10' }, 'man-line'), 5, 0.45);
-      // 6 · diamond gems
-      for (let i = 0; i < 8; i++) {
-        const a = (Math.PI * 2 * i) / 8;
-        const dx = cx + Math.cos(a) * R * 0.92, dy = cy + Math.sin(a) * R * 0.92;
-        add(manEl('rect', {
-          x: dx - 5, y: dy - 5, width: 10, height: 10,
-          transform: 'rotate(45 ' + dx + ' ' + dy + ')'
-        }, 'man-gem'), 6, 0.6);
-      }
-      // 7 · outer ring
-      add(manEl('circle', { cx, cy, r: R }, 'man-line'), 7, 0.3);
+      add(manEl('circle', { cx, cy, r: R * 0.9, fill: 'url(#manSoft)' }), 0, 0.85);
 
-      layer.appendChild(g);
-      mands.push({ g, els: [...g.children], top: cy - R - 90, bottom: cy + R * 0.55, last: -1 });
+      if (kind === 'lotus') {
+        add(manEl('circle', { cx, cy, r: R * 0.18 }, 'man-line'), 1, 0.4);
+        for (let i = 0; i < 12; i++) {
+          const a = (Math.PI * 2 * i) / 12;
+          add(manEl('path', { d: petal(cx, cy, a, R * 0.2, R * 0.6, R * 0.07) }, 'man-line'), 2, 0.38);
+        }
+        for (let i = 0; i < 12; i++) {
+          const a = (Math.PI * 2 * i) / 12 + Math.PI / 12;
+          add(manEl('path', { d: petal(cx, cy, a, R * 0.36, R * 0.9, R * 0.055) }, 'man-line'), 3, 0.3);
+        }
+        add(manEl('circle', { cx, cy, r: R, 'stroke-dasharray': '2 10' }, 'man-line'), 4, 0.3);
+        record(g, cx, cy, R, 4);
+      } else if (kind === 'compass') {
+        add(manEl('circle', { cx, cy, r: R * 0.16 }, 'man-line'), 1, 0.4);
+        for (let i = 0; i < 16; i++) {
+          const a = (Math.PI * 2 * i) / 16;
+          const [x1, y1] = P(cx, cy, a, R * 0.26);
+          const [x2, y2] = P(cx, cy, a, R * 0.5);
+          add(manEl('line', { x1, y1, x2, y2 }, 'man-line'), 2, 0.32);
+        }
+        add(manEl('circle', { cx, cy, r: R * 0.62 }, 'man-line'), 3, 0.4);
+        for (let i = 0; i < 8; i++) {
+          const a = (Math.PI * 2 * i) / 8;
+          const [dx, dy] = P(cx, cy, a, R * 0.78);
+          add(manEl('rect', {
+            x: dx - 5, y: dy - 5, width: 10, height: 10,
+            transform: 'rotate(45 ' + dx + ' ' + dy + ')'
+          }, 'man-gem'), 4, 0.55);
+        }
+        add(manEl('circle', { cx, cy, r: R }, 'man-line'), 5, 0.28);
+        record(g, cx, cy, R, 5);
+      } else if (kind === 'star') {
+        add(manEl('circle', { cx, cy, r: R * 0.13 }, 'man-line'), 1, 0.42);
+        for (let k = 0; k < 2; k++) {
+          const pts = [];
+          for (let i = 0; i < 4; i++) {
+            const a = (Math.PI * 2 * i) / 4 + (k ? Math.PI / 4 : 0) + Math.PI / 8;
+            pts.push(P(cx, cy, a, R * 0.55).join(','));
+          }
+          add(manEl('polygon', { points: pts.join(' ') }, 'man-line'), 2, 0.3);
+        }
+        for (let i = 0; i < 8; i++) {
+          const a = (Math.PI * 2 * i) / 8;
+          add(manEl('path', { d: petal(cx, cy, a, R * 0.5, R * 0.82, R * 0.05) }, 'man-line'), 3, 0.36);
+        }
+        add(manEl('circle', { cx, cy, r: R * 0.95, 'stroke-dasharray': '2 12' }, 'man-line'), 4, 0.3);
+        record(g, cx, cy, R, 4);
+      } else {
+        // orbits
+        add(manEl('circle', { cx, cy, r: R * 0.14 }, 'man-line'), 1, 0.42);
+        add(manEl('circle', { cx, cy, r: R * 0.4, 'stroke-dasharray': '3 8' }, 'man-line'), 2, 0.34);
+        add(manEl('circle', { cx, cy, r: R * 0.65, 'stroke-dasharray': '3 8' }, 'man-line'), 3, 0.3);
+        for (let i = 0; i < 6; i++) {
+          const a = (Math.PI * 2 * i) / 6 + Math.PI / 6;
+          const [ox, oy] = P(cx, cy, a, R * 0.65);
+          add(manEl('circle', { cx: ox, cy: oy, r: 4 }, 'man-gem'), 3, 0.5);
+        }
+        add(manEl('circle', { cx, cy, r: R * 0.9, 'stroke-dasharray': '3 8' }, 'man-line'), 4, 0.26);
+        record(g, cx, cy, R, 4);
+      }
     });
+
     svg.appendChild(layer);
   };
 
@@ -341,7 +450,7 @@
       const p = Math.max(0, Math.min(1, (focusY - m.top) / (m.bottom - m.top)));
       if (Math.abs(p - m.last) < 0.003) continue;
       m.last = p;
-      const front = p * 8.6;
+      const front = p * (m.maxO + 1.6);
       for (const el of m.els) {
         const f = Math.max(0, Math.min(1, front - el.__o));
         el.style.opacity = (f * el.__v).toFixed(3);
@@ -371,10 +480,14 @@
       : docH - 80;
 
     // corridor: fall down the page's center, dive into each pipeline,
-    // walk its stages, then drift on to the next one
+    // walk its stages, then drift on to the next one. It always starts
+    // at the center, so the light wakes in the main mandala's heart.
     const cx = rail ? 26 : docW * 0.5;
-    const pts = [{ x: cx, y: 0 }];
+    const vh = window.innerHeight;
+    const pts = [{ x: docW * 0.5, y: 0 }];
     if (rail) {
+      pts.push({ x: docW * 0.5, y: vh * 0.62 });
+      pts.push({ x: 26, y: Math.max(vh * 0.95, anchors[0].y - 140) });
       anchors.forEach((a) => pts.push({ x: a.x, y: a.y }));
     } else {
       const tl = document.querySelector('.timeline');
@@ -438,29 +551,29 @@
       a.s = best;
     }
 
-    // the lamp: a soft radial light the head carries as it falls
+    // gradients: the lamp's light, the main mandala's core, and the
+    // softer halo of the scroll mandalas — all champagne gold
     const defs = document.createElementNS(NS, 'defs');
-    const grad = document.createElementNS(NS, 'radialGradient');
-    grad.setAttribute('id', 'headGrad');
-    [['0%', 'rgba(238,170,122,0.5)'], ['38%', 'rgba(217,111,71,0.22)'], ['100%', 'rgba(217,111,71,0)']]
-      .forEach(([o, c]) => {
+    const mkGrad = (id, stops) => {
+      const gr = document.createElementNS(NS, 'radialGradient');
+      gr.setAttribute('id', id);
+      stops.forEach(([o, c]) => {
         const st = document.createElementNS(NS, 'stop');
         st.setAttribute('offset', o);
         st.setAttribute('stop-color', c);
-        grad.appendChild(st);
+        gr.appendChild(st);
       });
-    defs.appendChild(grad);
-    // the mandala halo — a wider, quieter warmth
-    const mgrad = document.createElementNS(NS, 'radialGradient');
-    mgrad.setAttribute('id', 'manGrad');
-    [['0%', 'rgba(238,170,122,0.17)'], ['55%', 'rgba(217,111,71,0.07)'], ['100%', 'rgba(217,111,71,0)']]
-      .forEach(([o, c]) => {
-        const st = document.createElementNS(NS, 'stop');
-        st.setAttribute('offset', o);
-        st.setAttribute('stop-color', c);
-        mgrad.appendChild(st);
-      });
-    defs.appendChild(mgrad);
+      defs.appendChild(gr);
+    };
+    mkGrad('headGrad', [
+      ['0%', 'rgba(250,240,210,0.55)'], ['38%', 'rgba(232,198,138,0.22)'], ['100%', 'rgba(232,198,138,0)']
+    ]);
+    mkGrad('manGrad', [
+      ['0%', 'rgba(252,244,218,0.4)'], ['40%', 'rgba(232,198,138,0.13)'], ['100%', 'rgba(232,198,138,0)']
+    ]);
+    mkGrad('manSoft', [
+      ['0%', 'rgba(232,198,138,0.13)'], ['60%', 'rgba(232,198,138,0.05)'], ['100%', 'rgba(232,198,138,0)']
+    ]);
     svg.appendChild(defs);
 
     headHalo = document.createElementNS(NS, 'circle');
@@ -577,10 +690,11 @@
         !mands.length || !headDot) return;
     const m = mands[0];
     const els = m.els;
+    const span = m.maxO + 1.6;
     // the ambient level each element settles back to after the flash
     const focusY = window.scrollY + window.innerHeight * 0.45;
     const restP = Math.max(0, Math.min(1, (focusY - m.top) / (m.bottom - m.top)));
-    const rest = els.map((el) => Math.max(0, Math.min(1, restP * 8.6 - el.__o)) * el.__v);
+    const rest = els.map((el) => Math.max(0, Math.min(1, restP * span - el.__o)) * el.__v);
     const bloom = els.map((el) => Math.min(0.95, el.__v * 2.1));
 
     introActive = true;
@@ -618,7 +732,7 @@
       if (t >= 1) { finish(); return; }
       if (t < 0.45) {
         // bloom — the mandala materializes from its center outward
-        const front = ease(t / 0.45) * 8.6;
+        const front = ease(t / 0.45) * span;
         for (let i = 0; i < els.length; i++) {
           const f = Math.max(0, Math.min(1, front - els[i].__o));
           els[i].style.opacity = (f * bloom[i]).toFixed(3);
@@ -629,7 +743,7 @@
         headDot.classList.add('charging');
         for (let i = 0; i < els.length; i++) {
           const o = els[i].__o;
-          const dim = Math.max(0, Math.min(1, q * 8.6 - (7 - o)));
+          const dim = Math.max(0, Math.min(1, q * span - (m.maxO - o)));
           els[i].style.opacity = (o === 0 ? bloom[i] : bloom[i] * (1 - dim)).toFixed(3);
         }
         cAttr(headDot, { r: (5.5 + q * 4).toFixed(2) });

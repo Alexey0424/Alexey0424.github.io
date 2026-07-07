@@ -15,6 +15,9 @@
   --terra-hot:  oklch(77% 0.13 55);
   --terra-deep: oklch(58% 0.14 38);
   --terra-ink:  oklch(20% 0.045 40);
+  /* the light is champagne gold; matter stays terracotta */
+  --gold:     oklch(85% 0.095 88);
+  --gold-hot: oklch(93% 0.055 95);
   --btn-bg:  var(--terra);
   --btn-ink: var(--terra-ink);
   --spot-alpha: 0.12;
@@ -49,6 +52,8 @@
   --terra-hot:  oklch(62% 0.16 45);
   --terra-deep: oklch(46% 0.13 38);
   --terra-ink:  oklch(97.5% 0.008 60);
+  --gold:     oklch(58% 0.115 80);
+  --gold-hot: oklch(50% 0.12 74);
   --btn-bg:  oklch(52% 0.15 40);
   --btn-ink: oklch(97.5% 0.008 60);
   --spot-alpha: 0.1;
@@ -163,7 +168,7 @@ body.aura-on .cursor-aura { opacity: 1; }
   z-index: 0;
   pointer-events: none;
   background-image: radial-gradient(circle,
-    color-mix(in oklab, var(--terra) 65%, transparent) 1.1px, transparent 1.6px);
+    color-mix(in oklab, var(--gold) 65%, transparent) 1.1px, transparent 1.6px);
   background-size: 26px 26px;
   opacity: 0.55;
   -webkit-mask-image: radial-gradient(230px circle at var(--lx, -500px) var(--ly, -500px),
@@ -359,18 +364,21 @@ main, .footer { position: relative; z-index: 1; }
 }
 .spine-lit {
   fill: none;
-  stroke: color-mix(in oklab, var(--terra) 55%, transparent);
+  stroke: color-mix(in oklab, var(--gold) 60%, transparent);
   stroke-width: 1.3;
   stroke-linecap: round;
 }
 .spine-head {
-  fill: var(--terra-hot);
-  filter: drop-shadow(0 0 12px oklch(77% 0.13 55 / 1));
+  fill: var(--gold-hot);
+  filter: drop-shadow(0 0 12px oklch(90% 0.08 90 / 1));
+}
+:root[data-theme="light"] .spine-head {
+  filter: drop-shadow(0 0 10px oklch(70% 0.12 80 / 0.8));
 }
 /* intro: the point charging with the mandala's energy */
 .spine-head.charging {
-  filter: drop-shadow(0 0 20px oklch(77% 0.13 55 / 1))
-          drop-shadow(0 0 55px oklch(68% 0.15 40 / 0.75));
+  filter: drop-shadow(0 0 20px oklch(93% 0.06 95 / 1))
+          drop-shadow(0 0 55px oklch(85% 0.095 88 / 0.8));
 }
 /* intro: the page holds its breath until the flash */
 html.introing .load-rise { animation-play-state: paused; }
@@ -379,14 +387,25 @@ html.introing .trainer {
   opacity: 0;
   pointer-events: none;
 }
-/* mandala — thin terra linework that blooms behind key text; the halo
+/* mandalas — golden linework that blooms behind key text; the halo
    embraces the words while they stay crisp on the layer above */
-.man-layer { opacity: 0.9; }
-:root[data-theme="light"] .man-layer { opacity: 0.62; }
-.man-line { fill: none; stroke: var(--terra); stroke-width: 1; }
-.man-gem { fill: var(--terra); }
+.man-layer { opacity: 0.95; }
+:root[data-theme="light"] .man-layer { opacity: 0.6; }
+.man-line { fill: none; stroke: var(--gold); stroke-width: 1; }
+.man-ray {
+  fill: none;
+  stroke: var(--gold-hot);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.man-gem { fill: var(--gold); }
+.man-spark {
+  fill: var(--gold-hot);
+  filter: drop-shadow(0 0 3px oklch(90% 0.08 90 / 0.9));
+}
 .mandala { transform-box: fill-box; transform-origin: center; }
 .mandala.spin { animation: man-spin 150s linear infinite; }
+.mandala.man-hero.spin { animation-duration: 260s; }
 @keyframes man-spin { to { transform: rotate(360deg); } }
 .spine-glow { text-shadow: 0 0 28px oklch(68% 0.15 40 / 0.45); }
 :root[data-theme="light"] .spine-glow { text-shadow: 0 0 26px oklch(55% 0.15 40 / 0.35); }
@@ -683,10 +702,10 @@ html.js .reveal.in { opacity: 1; transform: none; }
 @keyframes dash-flow { to { stroke-dashoffset: -14; } }
 /* data packets — bright drops that travel each edge once it is lit */
 .fg-packet {
-  fill: var(--terra-hot);
+  fill: var(--gold-hot);
   opacity: 0;
   transition: opacity 0.45s ease;
-  filter: drop-shadow(0 0 4px oklch(77% 0.13 55 / 0.9));
+  filter: drop-shadow(0 0 4px oklch(90% 0.08 90 / 0.9));
 }
 .fg-packet.on { opacity: 1; }
 
