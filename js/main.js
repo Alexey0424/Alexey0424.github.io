@@ -214,8 +214,16 @@
             push(h3, rail ? 26 : r.left + r.width / 2, r.top + sy + r.height / 2, 'title');
           }
           cs.querySelectorAll('.fg-node').forEach((gn) => {
-            const r = gn.getBoundingClientRect();
-            const a = { el: gn, x: Math.max(20, rail ? 26 : r.left + r.width / 2), y: r.top + sy + r.height / 2, kind: 'gnode' };
+            // anchor on the node's socket so the thread rides the
+            // same corridor as the graph's own edges
+            const sock = gn.querySelector('.fg-sock');
+            const r = (sock || gn).getBoundingClientRect();
+            const a = {
+              el: gn,
+              x: Math.max(20, rail ? 26 : r.left + r.width / 2),
+              y: r.top + sy + r.height / 2,
+              kind: 'gnode'
+            };
             a.edge = gn.__edge || null;
             a.zone = cs;
             out.push(a);
@@ -335,8 +343,21 @@
       }
     }
 
-    // the training run: scroll = epochs, loss falls, accuracy climbs
+    // the training run: scroll = epochs, loss falls, accuracy climbs.
+    // The HUD rides beside the light's head.
     if (trainer) {
+      if (!reducedMotion) {
+        trainer.classList.add('float');
+        const tw = trainer.offsetWidth || 280;
+        const th = trainer.offsetHeight || 64;
+        const vw = window.innerWidth, vh = window.innerHeight;
+        let vx = p.x + 26;
+        if (vx + tw > vw - 10) vx = p.x - tw - 26;      // flip to the left near the edge
+        vx = Math.max(10, vx);
+        let vy = p.y - window.scrollY + 14;
+        vy = Math.max(70, Math.min(vh - th - 10, vy));
+        trainer.style.transform = 'translate3d(' + Math.round(vx) + 'px,' + Math.round(vy) + 'px,0)';
+      }
       const pr = Math.min(1, s / totalLen);
       const done = pr >= 0.99;
       const line = done

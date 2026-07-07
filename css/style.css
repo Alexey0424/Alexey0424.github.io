@@ -145,22 +145,31 @@ body.aura-on .cursor-aura { opacity: 1; }
    -------------------------------------------------------------------------- */
 .trainer {
   position: fixed;
-  left: 1rem;
-  bottom: 1rem;
+  top: 4.4rem;
+  right: 1rem;
   z-index: 80;
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 0.45rem 0.6rem;
+  gap: 0.5rem 0.65rem;
   align-items: center;
-  min-width: 16rem;
-  padding: 0.6rem 0.8rem;
-  font-size: 0.62rem;
+  min-width: 17.5rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.7rem;
   color: var(--ink-dim);
-  background: color-mix(in oklab, var(--bg-deep) 80%, transparent);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--line);
+  background: color-mix(in oklab, var(--bg-deep) 55%, transparent);
+  backdrop-filter: blur(9px);
+  border: 1px solid color-mix(in oklab, var(--line) 65%, transparent);
   border-radius: 10px;
+  opacity: 0.92;
   transition: border-color 0.4s ease, color 0.4s ease;
+}
+/* when JS drives it, the HUD rides beside the falling light */
+.trainer.float {
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  will-change: transform;
 }
 .tr-top { grid-column: 1 / -1; white-space: nowrap; letter-spacing: 0.02em; }
 .trainer b { color: var(--terra); font-weight: 500; }
@@ -301,7 +310,7 @@ body.aura-on .cursor-aura { opacity: 1; }
 #spine {
   position: absolute;
   top: 0; left: 0;
-  z-index: 2; /* the light travels OVER the page */
+  z-index: 0; /* the light travels beneath the page, glowing through */
   pointer-events: none;
 }
 main, .footer { position: relative; z-index: 1; }
@@ -563,7 +572,7 @@ html.js .reveal.in { opacity: 1; transform: none; }
   border-radius: 16px;
   background:
     radial-gradient(28rem 20rem at 50% 0%, var(--haze), transparent 72%),
-    color-mix(in oklab, var(--bg-deep) 82%, transparent);
+    color-mix(in oklab, var(--bg-deep) 70%, transparent);
   box-shadow: 0 34px 60px -30px oklch(8% 0.01 40 / 0.75);
   padding: clamp(0.75rem, 2vw, 1.5rem);
 }
