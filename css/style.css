@@ -565,6 +565,63 @@ html.js .reveal {
 html.js .reveal.in { opacity: 1; transform: none; }
 
 /* --------------------------------------------------------------------------
+   AI Projects gallery — a horizontal strip of the repo dioramas.
+   Grab and drag (mouse), native swipe (touch); click jumps to the case.
+   -------------------------------------------------------------------------- */
+.gallery { padding-bottom: clamp(1rem, 2.5vw, 2rem); }
+.strip {
+  display: flex;
+  gap: clamp(1rem, 2vw, 1.6rem);
+  width: min(1560px, 100%);
+  margin-inline: auto;
+  padding: 0.4rem clamp(1.25rem, 4vw, 2.75rem) 1.1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  cursor: grab;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 2.5%, #000 97.5%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 2.5%, #000 97.5%, transparent);
+}
+.strip::-webkit-scrollbar { display: none; }
+.strip.dragging { cursor: grabbing; scroll-snap-type: none; }
+.strip.dragging .strip-card { pointer-events: none; }
+.strip-card {
+  flex: 0 0 clamp(17rem, 30vw, 24rem);
+  scroll-snap-align: start;
+  text-decoration: none;
+}
+.strip-card img {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--panel-shadow);
+  transition: transform 0.45s var(--ease-out), border-color 0.3s ease;
+}
+.strip-card:hover img,
+.strip-card:focus-visible img {
+  transform: translateY(-5px);
+  border-color: var(--terra);
+}
+.strip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 0.7rem;
+  font-size: 0.72rem;
+  color: var(--terra);
+  letter-spacing: 0.02em;
+}
+.strip-label::before {
+  content: "";
+  width: 7px; height: 7px;
+  background: var(--terra);
+  transform: rotate(45deg);
+  flex: none;
+}
+.strip-card:hover .strip-label { color: var(--terra-hot); }
+
+/* --------------------------------------------------------------------------
    Featured work
    -------------------------------------------------------------------------- */
 .work { padding-inline: 0; }

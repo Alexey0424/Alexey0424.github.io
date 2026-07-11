@@ -100,20 +100,21 @@
       </div>
       <ol class="timeline">
         <li class="entry reveal">
-          <div class="entry-when mono">Apr 2026 – now</div>
+          <div class="entry-when mono">Jan 2026 – now</div>
           <div class="entry-body">
-            <h3>Independent AI Engineer</h3>
-            <p class="entry-where mono">Medellín, Colombia</p>
+            <h3>Data Scientist · Luis Buys Homes</h3>
+            <p class="entry-where mono">Florida, US · remote</p>
             <ul class="entry-points">
-              <li>Built <span class="kw">ORCA</span> in public: self-hosted call intelligence, raw audio to coaching scorecard.</li>
-              <li>Shipped a <span class="kw">grounded</span> LLM web scraper and a remote MCP connector for a live CRM.</li>
+              <li>CRM <span class="kw">automation suite</span> in production: 3 event-driven pipelines, <strong class="mono">~43,000</strong> polling ops/month cut to <strong class="mono">~3</strong> per event.</li>
+              <li>Remote <span class="kw">MCP server</span> so the sales team asks their CRM questions through Claude — role-gated, read-only.</li>
+              <li><span class="kw">BERT sentiment</span> over first-contact calls; PostgreSQL to Power BI dashboards the team ran their day on.</li>
             </ul>
-            <a class="entry-link mono" href="https://github.com/Alexey0424/llm-web-scraper" target="_blank" rel="noopener">See it: LLM scraper <span class="arrow" aria-hidden="true">&#8599;</span></a>
+            <a class="entry-link mono" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">See it: CRM suite <span class="arrow" aria-hidden="true">&#8599;</span></a>
           </div>
         </li>
 
         <li class="entry reveal">
-          <div class="entry-when mono">Jan 2026 – Mar 2026</div>
+          <div class="entry-when mono">Jun 2025 – Dec 2025</div>
           <div class="entry-body">
             <h3>Data Scientist · Cactus Home Offer</h3>
             <p class="entry-where mono">Florida, US · remote</p>
@@ -122,19 +123,6 @@
               <li>LLM KPI extraction in mixed Spanish and English, served in real time through n8n.</li>
             </ul>
             <a class="entry-link mono" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">See it: ORCA <span class="arrow" aria-hidden="true">&#8599;</span></a>
-          </div>
-        </li>
-
-        <li class="entry reveal">
-          <div class="entry-when mono">Jun 2025 – Dec 2025</div>
-          <div class="entry-body">
-            <h3>Data Scientist · Luis Buys Homes</h3>
-            <p class="entry-where mono">Florida, US · remote</p>
-            <ul class="entry-points">
-              <li><span class="kw">BERT sentiment</span> over first-contact sales calls, containerized with Docker.</li>
-              <li>PostgreSQL to Power BI dashboards the sales team ran their day on.</li>
-            </ul>
-            <a class="entry-link mono" href="https://github.com/Alexey0424/real-estate-crm-automation-suite" target="_blank" rel="noopener">See it: CRM suite <span class="arrow" aria-hidden="true">&#8599;</span></a>
           </div>
         </li>
 
@@ -161,6 +149,44 @@
       </ol>
     </section>
 
+    <!-- ============ AI PROJECTS GALLERY ============ -->
+    <section class="gallery" id="projects">
+      <div class="section-head reveal">
+        <h2>AI Projects</h2>
+        <p>Grab and drag. Click a card to jump to its build.</p>
+      </div>
+      <div class="strip reveal" tabindex="0" aria-label="Project gallery, scrolls horizontally">
+        <a class="strip-card" href="#case-orca">
+          <img src="assets/projects/orca.jpg" alt="ORCA call intelligence" loading="lazy" draggable="false">
+          <span class="strip-label mono">Speech Intelligence</span>
+        </a>
+        <a class="strip-card" href="#case-scraper">
+          <img src="assets/projects/scraper.jpg" alt="LLM web scraper" loading="lazy" draggable="false">
+          <span class="strip-label mono">LLM Web Scraping</span>
+        </a>
+        <a class="strip-card" href="#case-crm">
+          <img src="assets/projects/crm.jpg" alt="Real estate CRM automation suite" loading="lazy" draggable="false">
+          <span class="strip-label mono">Automation &amp; Workflows</span>
+        </a>
+        <a class="strip-card" href="#case-mcp">
+          <img src="assets/projects/mcp.jpg" alt="MCP connector for the CRM" loading="lazy" draggable="false">
+          <span class="strip-label mono">Model Context Protocol</span>
+        </a>
+        <a class="strip-card" href="#case-windml">
+          <img src="assets/projects/wind-ml.jpg" alt="Wind turbine damage detection" loading="lazy" draggable="false">
+          <span class="strip-label mono">Machine Learning</span>
+        </a>
+        <a class="strip-card" href="#case-school">
+          <img src="assets/projects/school.jpg" alt="Rural school risk screening" loading="lazy" draggable="false">
+          <span class="strip-label mono">ML Research</span>
+        </a>
+        <a class="strip-card" href="#case-pqr">
+          <img src="assets/projects/pqr.jpg" alt="Citizen complaint sentiment analysis" loading="lazy" draggable="false">
+          <span class="strip-label mono">NLP · Transformers</span>
+        </a>
+      </div>
+    </section>
+
     <!-- ============ FEATURED WORK ============ -->
     <section class="work" id="work">
       <div class="section-head reveal">
@@ -169,7 +195,7 @@
       </div>
 
       <!-- ORCA -->
-      <article class="case reveal">
+      <article class="case reveal" id="case-orca">
         <div class="case-text">
           <h3>Call intelligence, fully self-hosted.</h3>
           <p class="case-story">
@@ -192,7 +218,7 @@
       </article>
 
       <!-- SCRAPER -->
-      <article class="case case-flip reveal">
+      <article class="case case-flip reveal" id="case-scraper">
         <div class="case-text">
           <h3>The scraper that can't make things up.</h3>
           <p class="case-story">
@@ -215,7 +241,7 @@
       </article>
 
       <!-- CRM SUITE -->
-      <article class="case reveal">
+      <article class="case reveal" id="case-crm">
         <div class="case-text">
           <h3>A sales team's nervous system.</h3>
           <p class="case-story">
@@ -237,7 +263,7 @@
       </article>
 
       <!-- MCP CONNECTOR -->
-      <article class="case case-flip reveal">
+      <article class="case case-flip reveal" id="case-mcp">
         <div class="case-text">
           <h3>Ask your CRM. It knows who's asking.</h3>
           <p class="case-story">
@@ -260,7 +286,7 @@
       </article>
 
       <!-- WIND TURBINE ML -->
-      <article class="case reveal">
+      <article class="case reveal" id="case-windml">
         <div class="case-text">
           <h3>A turbine that tells you where it hurts.</h3>
           <p class="case-story">
@@ -283,7 +309,7 @@
       </article>
 
       <!-- RURAL SCHOOL RISK -->
-      <article class="case case-flip reveal">
+      <article class="case case-flip reveal" id="case-school">
         <div class="case-text">
           <h3>Expert judgment, taught to a model.</h3>
           <p class="case-story">
@@ -305,7 +331,7 @@
       </article>
 
       <!-- PQR SENTIMENT -->
-      <article class="case reveal">
+      <article class="case reveal" id="case-pqr">
         <div class="case-text">
           <h3>The complaint line, decoded.</h3>
           <p class="case-story">

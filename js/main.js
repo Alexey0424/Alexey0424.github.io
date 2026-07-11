@@ -1190,6 +1190,41 @@
   }
 
   /* ------------------------------------------------------------------
+     AI Projects strip — grab-and-drag horizontal scroll (mouse),
+     native swipe on touch, vertical wheel rides sideways. A real drag
+     swallows the click so cards only navigate on a clean tap.
+     ------------------------------------------------------------------ */
+  const strip = document.querySelector('.strip');
+  if (strip) {
+    let down = false, startX = 0, startL = 0, moved = 0;
+    strip.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse') return;        // touch scrolls natively
+      down = true; moved = 0;
+      startX = e.clientX; startL = strip.scrollLeft;
+      strip.setPointerCapture(e.pointerId);
+    });
+    strip.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      if (moved > 5) strip.classList.add('dragging');
+      strip.scrollLeft = startL - dx;
+    });
+    const release = () => { down = false; strip.classList.remove('dragging'); };
+    strip.addEventListener('pointerup', release);
+    strip.addEventListener('pointercancel', release);
+    strip.addEventListener('click', (e) => {
+      if (moved > 5) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    strip.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        strip.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    }, { passive: false });
+  }
+
+  /* ------------------------------------------------------------------
      Scroll reveals + metric counters
      ------------------------------------------------------------------ */
   const reveals = document.querySelectorAll('.reveal');
