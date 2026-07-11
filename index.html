@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alexey Velásquez · AI Engineer</title>
-  <meta name="description" content="AI engineer and data scientist in Medellín, Colombia. Speech intelligence, grounded LLM agents, interpretable ML, and the automation that wires them into real businesses.">
+  <meta name="description" content="AI engineer in Medellín, Colombia. Speech intelligence, grounded LLM agents and interpretable ML — built end to end and run where your data lives.">
+  <link rel="canonical" href="https://alexey0424.github.io/">
+  <meta property="og:type" content="website">
   <meta property="og:title" content="Alexey Velásquez · AI Engineer">
   <meta property="og:description" content="Speech intelligence, grounded LLM agents, interpretable ML. Built end to end, run for real.">
   <meta property="og:image" content="https://alexey0424.github.io/assets/og-card.png">
@@ -12,6 +14,9 @@
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://alexey0424.github.io/">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Alexey Velásquez · AI Engineer">
+  <meta name="twitter:description" content="Speech intelligence, grounded LLM agents, interpretable ML. Built end to end, run for real.">
+  <meta name="twitter:image" content="https://alexey0424.github.io/assets/og-card.png">
   <meta name="theme-color" content="#1b120d">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231b120d'/%3E%3Cpath d='M8 32h6l4-14 6 28 6-22 5 12 4-6h17' fill='none' stroke='%23d96f47' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,9 +25,14 @@
   <link rel="stylesheet" href="css/style.css">
   <script>
     (function () {
-      var t = localStorage.getItem('theme');
-      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+      } catch (e) { /* storage blocked — dark default */ }
     })();
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Person","name":"Alexey David Velásquez Betancurt","alternateName":"Alexey Velásquez","jobTitle":"AI Engineer","url":"https://alexey0424.github.io/","address":{"@type":"PostalAddress","addressLocality":"Medellín","addressCountry":"CO"},"sameAs":["https://github.com/Alexey0424","https://www.linkedin.com/in/alexey-ve/"]}
   </script>
 </head>
 <body>
@@ -46,10 +56,10 @@
     </a>
     <nav class="nav-links" aria-label="Sections">
       <a href="#experience">Experience</a>
-      <a href="#work">Work</a>
+      <a href="#work" class="keep-m">Work</a>
       <a href="#stack">Stack</a>
       <a href="#about">About</a>
-      <a href="#contact">Contact</a>
+      <a href="#contact" class="keep-m">Contact</a>
     </nav>
     <div class="nav-actions">
       <button class="theme-toggle" type="button" aria-label="Switch to light theme" aria-pressed="false">
@@ -71,12 +81,14 @@
           <span class="line load-rise" style="--l:1">Alexey</span>
           <span class="line load-rise" style="--l:2">Velásquez<em>.</em></span>
         </h1>
-        <p class="hero-role load-rise" style="--l:3">AI engineer and data scientist. I build AI that runs <em>where your data lives</em>: speech intelligence, grounded LLM agents, interpretable ML.</p>
-        <div class="hero-cta load-rise" style="--l:4">
+        <p class="hero-role load-rise" style="--l:3">AI engineer. I build AI that runs <em>where your data lives</em>: speech intelligence, grounded LLM agents, interpretable ML.</p>
+        <p class="hero-stats mono load-rise" style="--l:4">up to <strong>80%</strong> less manual review · up to <strong>99.5%</strong> fault detection · <strong>7</strong> systems on GitHub</p>
+        <div class="hero-cta load-rise" style="--l:5">
           <a class="btn btn-fire" href="#experience" data-magnetic>Experience <span class="arrow" aria-hidden="true">&#8595;</span></a>
           <a class="btn btn-ghost" href="#work" data-magnetic>See the work <span class="arrow" aria-hidden="true">&#8595;</span></a>
+          <a class="btn btn-ghost" href="assets/alexey-velasquez-resume.pdf" data-magnetic download>Resume <span class="arrow" aria-hidden="true">&#8595;</span></a>
         </div>
-        <p class="hero-status mono load-rise" style="--l:5"><span class="pulse-dot" aria-hidden="true"></span> Open to AI / ML engineering roles</p>
+        <p class="hero-status mono load-rise" style="--l:6"><span class="pulse-dot" aria-hidden="true"></span> Open to AI / ML engineering roles</p>
       </div>
     </section>
 
@@ -84,24 +96,37 @@
     <section class="experience" id="experience">
       <div class="section-head reveal">
         <h2>Experience</h2>
-        <p>The jobs behind the projects. Each role links to its code.</p>
+        <p>Three years, one direction: from fault-detection ML in the lab to self-hosted speech intelligence in production. Each role links to its code.</p>
       </div>
       <ol class="timeline">
         <li class="entry reveal">
-          <div class="entry-when mono">Aug 2023 · Aug 2025</div>
+          <div class="entry-when mono">Apr 2026 – now</div>
           <div class="entry-body">
-            <h3>Machine Learning Engineer · EIA University</h3>
+            <h3>Independent AI Engineer</h3>
             <p class="entry-where mono">Medellín, Colombia</p>
             <ul class="entry-points">
-              <li>Turbine <span class="kw">fault detection</span> from vibration data: LightGBM and XGBoost, up to <strong class="mono">99.5%</strong> accuracy.</li>
-              <li>Model tournaments: Random Forest, SVM, autoencoders. PostgreSQL ingestion.</li>
+              <li>Built <span class="kw">ORCA</span> in public: self-hosted call intelligence, raw audio to coaching scorecard.</li>
+              <li>Shipped a <span class="kw">grounded</span> LLM web scraper and a remote MCP connector for a live CRM.</li>
             </ul>
-            <a class="entry-link mono" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener">See it: Turbine FDD <span class="arrow" aria-hidden="true">&#8599;</span></a>
+            <a class="entry-link mono" href="https://github.com/Alexey0424/llm-web-scraper" target="_blank" rel="noopener">See it: LLM scraper <span class="arrow" aria-hidden="true">&#8599;</span></a>
           </div>
         </li>
 
         <li class="entry reveal">
-          <div class="entry-when mono">Jun 2025 · Dec 2025</div>
+          <div class="entry-when mono">Jan 2026 – Mar 2026</div>
+          <div class="entry-body">
+            <h3>Data Scientist · Cactus Home Offer</h3>
+            <p class="entry-where mono">Florida, US · remote</p>
+            <ul class="entry-points">
+              <li><span class="kw">Speech intelligence</span> for sales calls: ASR, pattern detection, SHAP. Up to <strong class="mono">80%</strong> less manual review.</li>
+              <li>LLM KPI extraction in mixed Spanish and English, served in real time through n8n.</li>
+            </ul>
+            <a class="entry-link mono" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">See it: ORCA <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          </div>
+        </li>
+
+        <li class="entry reveal">
+          <div class="entry-when mono">Jun 2025 – Dec 2025</div>
           <div class="entry-body">
             <h3>Data Scientist · Luis Buys Homes</h3>
             <p class="entry-where mono">Florida, US · remote</p>
@@ -122,15 +147,15 @@
         </li>
 
         <li class="entry reveal">
-          <div class="entry-when mono">Jan 2026 · Mar 2026</div>
+          <div class="entry-when mono">Aug 2023 – Aug 2025</div>
           <div class="entry-body">
-            <h3>Data Scientist · Cactus Home Offer</h3>
-            <p class="entry-where mono">Florida, US · remote</p>
+            <h3>Machine Learning Engineer · EIA University</h3>
+            <p class="entry-where mono">Medellín, Colombia</p>
             <ul class="entry-points">
-              <li><span class="kw">Speech intelligence</span> for sales calls: ASR, pattern detection, SHAP. Up to <strong class="mono">80%</strong> less manual review.</li>
-              <li>LLM KPI extraction in mixed Spanish and English, served in real time through n8n.</li>
+              <li>Turbine <span class="kw">fault detection</span> from vibration data: LightGBM and XGBoost, up to <strong class="mono">99.5%</strong> accuracy.</li>
+              <li>Model tournaments — Random Forest, SVM, autoencoders — on a PostgreSQL-fed pipeline; the winners shipped.</li>
             </ul>
-            <a class="entry-link mono" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">Public demo: ORCA <span class="arrow" aria-hidden="true">&#8599;</span></a>
+            <a class="entry-link mono" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener">See it: Turbine FDD <span class="arrow" aria-hidden="true">&#8599;</span></a>
           </div>
         </li>
       </ol>
@@ -153,14 +178,15 @@
             you can chat with. <span class="kw">Nothing leaves the machine.</span>
           </p>
           <ul class="case-results">
-            <li><strong class="mono">5</strong> GPU services, one <code>docker compose up</code></li>
+            <li>Up to <strong class="mono">80%</strong> less manual call review for a US sales team</li>
             <li><strong class="mono">~95%</strong> retrieval quality at <strong class="mono">20%</strong> of the storage</li>
-            <li>PII redacted before anything is stored</li>
+            <li>PII redacted before anything is stored — <strong class="mono">5</strong> GPU services, one <code>docker compose up</code></li>
           </ul>
           <ul class="chips" aria-label="Technologies">
             <li>Whisper</li><li>pyannote</li><li>emotion2vec</li><li>FastAPI</li><li>pgvector</li><li>Ollama</li><li>n8n</li><li>Docker</li><li>CUDA</li>
           </ul>
           <a class="case-link" href="https://github.com/Alexey0424/orca-call-intelligence" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="case-link" href="assets/orca-report.png" target="_blank" rel="noopener">See it running <span class="arrow" aria-hidden="true">&#8599;</span></a>
         </div>
         <div class="case-media flow" data-flow="orca" data-tilt role="img" aria-label="ORCA pipeline: audio, ASR, diarization and emotion, LLM KPIs, pgvector, RAG agent, report and chat"></div>
       </article>
@@ -175,14 +201,15 @@
             <span class="kw">checked against the page</span> before export.
           </p>
           <ul class="case-results">
-            <li><strong class="mono">151</strong> tests, fully offline</li>
+            <li>Every value verified against the source page — ungrounded fields are <strong class="mono">blanked</strong>, not guessed</li>
             <li>Schema-constrained decoding on every LLM call</li>
-            <li>Live crawl UI: plan, progress, ETA</li>
+            <li><strong class="mono">151</strong> tests, fully offline · live crawl UI with plan, progress, ETA</li>
           </ul>
           <ul class="chips" aria-label="Technologies">
             <li>Ollama</li><li>Flask</li><li>SQLite</li><li>Docker</li><li>pytest</li><li>JSON-LD</li>
           </ul>
           <a class="case-link" href="https://github.com/Alexey0424/llm-web-scraper" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="case-link" href="assets/scraper-live.png" target="_blank" rel="noopener">See it running <span class="arrow" aria-hidden="true">&#8599;</span></a>
         </div>
         <div class="case-media flow" data-flow="scraper" data-tilt role="img" aria-label="Scraper pipeline: prompt and URL, plan, crawl, classify, extract, verify, spreadsheet"></div>
       </article>
@@ -197,9 +224,9 @@
             <span class="kw">production</span> for a US real estate team.
           </p>
           <ul class="case-results">
-            <li><strong class="mono">3</strong> event-driven pipelines</li>
-            <li><strong class="mono">26</strong> passing tests</li>
-            <li>Sanitized so it can be shown publicly</li>
+            <li><strong class="mono">~43,000</strong> idle polling ops/month cut to <strong class="mono">~3</strong> per event</li>
+            <li>Every lead logged, deduped and routed with zero manual touch</li>
+            <li>A production race condition found and engineered out — authored as code, not clicks</li>
           </ul>
           <ul class="chips" aria-label="Technologies">
             <li>Make.com</li><li>n8n</li><li>Python</li><li>Node.js</li><li>Slack Block Kit</li><li>Apps Script</li><li>Webhooks</li>
@@ -209,39 +236,96 @@
         <div class="case-media flow" data-flow="crm" data-tilt role="img" aria-label="CRM pipeline: webhooks, normalize, dedupe, route, log and summarize, Slack and CRM"></div>
       </article>
 
-      <!-- Applied ML, compact -->
-      <div class="ml-rows">
-        <a class="ml-row reveal" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener" data-spotlight>
-          <div class="ml-info">
-            <h3>Wind turbine damage detection</h3>
-            <p>6,000+ real vibration records, 1.5 years, five model families. SHAP-audited.</p>
-          </div>
-          <div class="ml-metric">
-            <span class="metric-num mono" data-count="0.973" data-decimals="3">0.973</span>
-            <span class="metric-label">AUC on hold-out</span>
-          </div>
-        </a>
-        <a class="ml-row reveal" href="https://github.com/Alexey0424/rural-school-risk-ml" target="_blank" rel="noopener" data-spotlight>
-          <div class="ml-info">
-            <h3>Rural school risk screening</h3>
-            <p>Four hazards, 11 algorithms, a Streamlit screening app. SHAP agrees with the physics.</p>
-          </div>
-          <div class="ml-metric">
-            <span class="metric-num mono" data-count="0.966" data-decimals="3">0.966</span>
-            <span class="metric-label">macro F1, cross-validated</span>
-          </div>
-        </a>
-        <a class="ml-row reveal" href="https://github.com/Alexey0424/pqr_sentiment_analysis" target="_blank" rel="noopener" data-spotlight>
-          <div class="ml-info">
-            <h3>Citizen complaint sentiment</h3>
-            <p>307 Spanish complaints, transformer sentiment, a desktop app that runs locally.</p>
-          </div>
-          <div class="ml-metric">
-            <span class="metric-num mono" data-count="68" data-suffix="%">68%</span>
-            <span class="metric-label">negative, zero positive</span>
-          </div>
-        </a>
-      </div>
+      <!-- MCP CONNECTOR -->
+      <article class="case case-flip reveal">
+        <div class="case-text">
+          <h3>Ask your CRM. It knows who's asking.</h3>
+          <p class="case-story">
+            A closer opens Claude and asks <span class="kw">"how did I do today?"</span>.
+            A Cloudflare Worker maps their Google sign-in to a CRM identity and scopes every
+            query <span class="kw">server-side</span> — managers get six extra tools nobody
+            else can even see.
+          </p>
+          <ul class="case-results">
+            <li>In production for a US real-estate sales team — onboarding is <strong class="mono">1</strong> click</li>
+            <li><strong class="mono">12</strong> MCP tools, role-gated: closers only ever see their own data</li>
+            <li><strong class="mono">100%</strong> read-only by construction</li>
+          </ul>
+          <ul class="chips" aria-label="Technologies">
+            <li>TypeScript</li><li>Cloudflare Workers</li><li>MCP</li><li>OAuth 2.0</li><li>Durable Objects</li><li>Zod</li>
+          </ul>
+          <a class="case-link" href="https://github.com/Alexey0424/mcp-connector-followupboss" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        </div>
+        <div class="case-media flow" data-flow="mcp" data-tilt role="img" aria-label="MCP connector pipeline: Claude chat, Google sign-in, identity map, role gate, scoped fetch, verify and aggregate, answer"></div>
+      </article>
+
+      <!-- WIND TURBINE ML -->
+      <article class="case reveal">
+        <div class="case-text">
+          <h3>A turbine that tells you where it hurts.</h3>
+          <p class="case-story">
+            Six accelerometers on a real <span class="kw">14-meter turbine</span> in the Andes.
+            Damage physically induced, natural frequencies distilled from raw vibration, and a
+            five-family model tournament — with <span class="kw">SHAP</span> confirming the models
+            trust the same physics an engineer would.
+          </p>
+          <ul class="case-results">
+            <li><strong class="mono">0.973</strong> AUC detecting damage on hold-out</li>
+            <li><strong class="mono">6,000+</strong> vibration records over <strong class="mono">1.5</strong> years of field campaigns</li>
+            <li>The first vibration mode drops by half when damage appears — the models found it</li>
+          </ul>
+          <ul class="chips" aria-label="Technologies">
+            <li>PyCaret</li><li>LightGBM</li><li>scikit-learn</li><li>SHAP</li><li>SciPy</li><li>Jupyter</li>
+          </ul>
+          <a class="case-link" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        </div>
+        <div class="case-media flow" data-flow="windml" data-tilt role="img" aria-label="Turbine pipeline: sensors, signal cleanup, FDD features, dataset build, model tournament, SHAP audit, saved pipelines"></div>
+      </article>
+
+      <!-- RURAL SCHOOL RISK -->
+      <article class="case case-flip reveal">
+        <div class="case-text">
+          <h3>Expert judgment, taught to a model.</h3>
+          <p class="case-story">
+            Rural Colombian schools, expert-rated for <span class="kw">earthquake</span>, landslide,
+            flood and windstorm risk. Hazard-specific encodings, an 11-algorithm tournament, and a
+            Streamlit screener that <span class="kw">explains every rating</span> with SHAP.
+          </p>
+          <ul class="case-results">
+            <li>Up to <strong class="mono">0.977</strong> hold-out accuracy across four hazards</li>
+            <li>Every miss is adjacent-class — no Low ever rated High, no High ever rated Low</li>
+            <li>A scenario engine quantifies which retrofit collapses the High-risk share</li>
+          </ul>
+          <ul class="chips" aria-label="Technologies">
+            <li>LightGBM</li><li>Extra Trees</li><li>SHAP</li><li>Streamlit</li><li>scikit-learn</li><li>pytest</li>
+          </ul>
+          <a class="case-link" href="https://github.com/Alexey0424/rural-school-risk-ml" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        </div>
+        <div class="case-media flow" data-flow="school" data-tilt role="img" aria-label="School risk pipeline: field survey, ordinal encoding, dedup and split, model tournament, holdout audit, SHAP explain, screener app"></div>
+      </article>
+
+      <!-- PQR SENTIMENT -->
+      <article class="case reveal">
+        <div class="case-text">
+          <h3>The complaint line, decoded.</h3>
+          <p class="case-story">
+            Real citizen complaints from a Colombian aqueduct program. PII stripped with a
+            <span class="kw">zero-leak audit</span>, scored by Spanish transformers running
+            <span class="kw">locally</span>, and cross-examined with statistics: feeling follows
+            process, not place.
+          </p>
+          <ul class="case-results">
+            <li><strong class="mono">68%</strong> of complaints negative — not one positive in the whole corpus</li>
+            <li>Domain shift documented: a social-media emotion model abstains on <strong class="mono">92%</strong></li>
+            <li>Ships as a desktop Studio app — nothing leaves the machine</li>
+          </ul>
+          <ul class="chips" aria-label="Technologies">
+            <li>Transformers</li><li>RoBERTuito</li><li>PyTorch</li><li>pandas</li><li>CustomTkinter</li><li>pytest</li>
+          </ul>
+          <a class="case-link" href="https://github.com/Alexey0424/pqr_sentiment_analysis" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        </div>
+        <div class="case-media flow" data-flow="pqr" data-tilt role="img" aria-label="PQR pipeline: intake, anonymize, clean and validate, sentiment scoring, model cross-check, statistics and mining, dashboard"></div>
+      </article>
     </section>
 
     <!-- ============ TECH STACK ============ -->
@@ -273,7 +357,7 @@
           <h3>Speech &amp; language AI</h3>
           <div class="tiles">
             <button type="button" class="tile" data-where="ASR at Cactus and in ORCA, word-level timestamps">Whisper</button>
-            <button type="button" class="tile" data-where="Sentiment over sales calls at Luis Buys Homes · Spanish robertuito on PQR">BERT</button>
+            <button type="button" class="tile" data-where="Sentiment over sales calls at Luis Buys Homes · Spanish RoBERTuito on PQR">BERT</button>
             <button type="button" class="tile" data-where="Local KPI extraction and coaching in ORCA · crawl planning in the scraper">LLMs · Ollama</button>
             <button type="button" class="tile" data-where="ORCA semantic call archive: pgvector HNSW + n8n agent">RAG</button>
             <button type="button" class="tile" data-where="9-class speech emotion in ORCA">emotion2vec</button>
@@ -313,7 +397,7 @@
           </div>
         </div>
       </div>
-      <p class="stack-readout mono" aria-live="polite">&#9670; Hover a technology to see where it earned its place.</p>
+      <p class="stack-readout mono" aria-live="polite">&#9670; nothing selected yet</p>
     </section>
 
     <!-- ============ ABOUT ============ -->
@@ -322,12 +406,13 @@
         <h2>About</h2>
         <p class="about-lede">
           I'm Alexey David Velásquez Betancurt, based in Medellín, Colombia. Master's in
-          Engineering, ML focus, 1st Class (94%). Two years shipping data science remotely
-          for US companies.
+          Engineering, ML focus, 1st Class (94%). Three years building and shipping ML —
+          from turbine sensors in a university lab to speech intelligence running in
+          production for US companies.
         </p>
         <p>
-          I like systems I can hold end to end. If it can run on your own hardware,
-          I will make it run there. Spanish and English.
+          I like owning the whole system, data to deploy. If it can run on your own
+          hardware, I will make it run there. Spanish and English.
         </p>
       </div>
     </section>
@@ -341,6 +426,7 @@
           <a class="btn btn-fire btn-big" href="mailto:alexeyvb135@gmail.com" data-magnetic>Email me <span class="arrow" aria-hidden="true">&#8599;</span></a>
           <a class="btn btn-ghost btn-big" href="https://www.linkedin.com/in/alexey-ve/" target="_blank" rel="noopener">LinkedIn <span class="arrow" aria-hidden="true">&#8599;</span></a>
           <a class="btn btn-ghost btn-big" href="https://github.com/Alexey0424" target="_blank" rel="noopener">GitHub <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="btn btn-ghost btn-big" href="assets/alexey-velasquez-resume.pdf" download>Resume <span class="arrow" aria-hidden="true">&#8595;</span></a>
         </div>
         <p class="contact-mail mono">alexeyvb135@gmail.com</p>
       </div>

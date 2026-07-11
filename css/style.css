@@ -14,6 +14,7 @@
   --terra:      oklch(68% 0.15 40);
   --terra-hot:  oklch(77% 0.13 55);
   --terra-deep: oklch(58% 0.14 38);
+  --terra-text: oklch(62% 0.14 38); /* terra-deep lifted for small text — AA on --bg */
   --terra-ink:  oklch(20% 0.045 40);
   /* the light is champagne gold; matter stays terracotta */
   --gold:     oklch(86% 0.105 87);
@@ -48,9 +49,10 @@
   --line-strong: oklch(48% 0.07 45 / 0.55);
   --ink:       oklch(24% 0.03 40);
   --ink-dim:   oklch(42% 0.035 42);
-  --terra:      oklch(55% 0.15 40);
+  --terra:      oklch(52% 0.15 40);
   --terra-hot:  oklch(62% 0.16 45);
   --terra-deep: oklch(46% 0.13 38);
+  --terra-text: oklch(46% 0.13 38);
   --terra-ink:  oklch(97.5% 0.008 60);
   --gold:     oklch(58% 0.115 80);
   --gold-hot: oklch(50% 0.12 74);
@@ -93,7 +95,7 @@ body {
 html.theming body,
 html.theming .nav, html.theming .btn, html.theming .chips li,
 html.theming .tile, html.theming .shot, html.theming .flow-diagram,
-html.theming .ml, html.theming .ml-row, html.theming .contact {
+html.theming .contact {
   transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
 }
 
@@ -481,6 +483,13 @@ html.introing .man-idle { animation: none; }
   gap: 1rem;
   margin-top: 2.2rem;
 }
+.hero-stats {
+  margin-top: 1.5rem;
+  font-size: 0.78rem;
+  color: var(--ink-dim);
+  letter-spacing: 0.01em;
+}
+.hero-stats strong { color: var(--terra); font-weight: 500; }
 .hero-status {
   margin-top: 2.3rem;
   font-size: 0.78rem;
@@ -657,6 +666,7 @@ html.js .reveal.in { opacity: 1; transform: none; }
 }
 .case-link:hover { background-size: 100% 2px; }
 .case-link:hover .arrow { transform: translate(3px, -2px); }
+.case-link + .case-link { margin-left: 1.6rem; }
 
 /* media frames */
 .case-media { position: relative; border-radius: 14px; }
@@ -825,7 +835,7 @@ html.js .reveal.in { opacity: 1; transform: none; }
 }
 .entry-when {
   font-size: 0.7rem;
-  color: var(--terra-deep);
+  color: var(--terra-text);
   margin-bottom: 0.45rem;
   transition: color 0.4s ease;
 }
@@ -943,63 +953,6 @@ html.js .reveal.in { opacity: 1; transform: none; }
 }
 
 /* --------------------------------------------------------------------------
-   Applied ML rows
-   -------------------------------------------------------------------------- */
-.ml-rows { display: block; }
-.work .ml-rows { margin-top: clamp(2.5rem, 5vw, 4rem); }
-.ml-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(1.5rem, 4vw, 4rem);
-  align-items: center;
-  padding: clamp(1rem, 2.2vw, 1.6rem) clamp(1rem, 2.5vw, 2rem);
-  border-top: 1px solid var(--line);
-  text-decoration: none;
-  border-radius: 12px;
-  transition: background-color 0.35s ease;
-}
-.ml-row:last-child { border-bottom: 1px solid var(--line); }
-.ml-row:hover { background: color-mix(in oklab, var(--surface) 75%, transparent); }
-.ml-info h3 {
-  font-size: clamp(1.25rem, 2vw, 1.6rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.5em;
-}
-.ml-info h3::after {
-  content: "\2197";
-  font-size: 0.8em;
-  color: var(--terra);
-  transition: transform 0.35s var(--ease-out);
-}
-.ml-row:hover .ml-info h3::after { transform: translate(4px, -3px); }
-.ml-info p {
-  margin-top: 0.7rem;
-  color: var(--ink-dim);
-  max-width: 56ch;
-  font-size: 0.98rem;
-}
-.ml-metric { text-align: right; }
-.metric-num {
-  display: block;
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 500;
-  color: var(--terra);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
-.metric-label {
-  display: block;
-  margin-top: 0.55rem;
-  font-size: 0.78rem;
-  color: var(--ink-dim);
-  line-height: 1.45;
-}
-
-/* --------------------------------------------------------------------------
    About
    -------------------------------------------------------------------------- */
 .about-inner h2 { margin-bottom: 1.6rem; }
@@ -1029,8 +982,9 @@ html.js .reveal.in { opacity: 1; transform: none; }
    Contact — the terra drench (both themes)
    -------------------------------------------------------------------------- */
 .contact {
-  background: linear-gradient(180deg, oklch(62% 0.155 42), oklch(53% 0.15 36));
-  color: oklch(20% 0.045 40);
+  /* bottom stop kept light enough that body text holds AA contrast */
+  background: linear-gradient(180deg, oklch(63% 0.15 42), oklch(59% 0.145 38));
+  color: oklch(16% 0.04 40);
 }
 .contact ::selection { background: oklch(20% 0.045 40); color: oklch(77% 0.13 55); }
 .contact-inner { text-align: center; }
@@ -1063,9 +1017,8 @@ html.js .reveal.in { opacity: 1; transform: none; }
 .contact .btn-ghost:hover { border-color: oklch(20% 0.045 40); color: oklch(20% 0.045 40); }
 .contact-mail {
   margin-top: 2.2rem;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   letter-spacing: 0.02em;
-  opacity: 0.85;
 }
 
 /* --------------------------------------------------------------------------
@@ -1099,12 +1052,12 @@ html.js .reveal.in { opacity: 1; transform: none; }
   .case { grid-template-columns: 1fr; }
   .case-flip .case-media { order: 0; }
   .case-media { max-width: 40rem; }
-  .ml-row { grid-template-columns: 1fr; }
-  .ml-metric { text-align: left; }
-  .metric-label br { display: none; }
 }
 @media (max-width: 720px) {
-  .nav-links { display: none; }
+  /* condensed nav: keep the two links that matter on a phone */
+  .nav-links { gap: 1rem; font-size: 0.88rem; }
+  .nav-links a:not(.keep-m) { display: none; }
+  .btn-nav { display: none; }
 }
 
 /* --------------------------------------------------------------------------

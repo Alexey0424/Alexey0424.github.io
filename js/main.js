@@ -8,7 +8,8 @@
   const root = document.documentElement;
   root.classList.add('js');
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reducedMotionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const reducedMotion = reducedMotionMQ.matches;
   const finePointer = window.matchMedia('(pointer: fine)').matches;
   const isLight = () => root.getAttribute('data-theme') === 'light';
 
@@ -30,13 +31,10 @@
   if (themeBtn) {
     themeBtn.addEventListener('click', () => {
       root.classList.add('theming');
-      if (isLight()) {
-        root.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        root.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
-      }
+      const next = isLight() ? 'dark' : 'light';
+      if (next === 'dark') root.removeAttribute('data-theme');
+      else root.setAttribute('data-theme', 'light');
+      try { localStorage.setItem('theme', next); } catch (e) { /* storage blocked — theme still flips */ }
       applyThemeExtras();
       setTimeout(() => root.classList.remove('theming'), 450);
     });
@@ -76,6 +74,42 @@
       ['route', 'channels · round robin'],
       ['log + summarize', 'AI summary · sentiment'],
       ['Slack + CRM', 'the team sees everything']
+    ],
+    mcp: [
+      ['Claude chat', 'how did I do today?'],
+      ['Google sign-in', 'workspace domain only'],
+      ['identity map', 'email to CRM user id'],
+      ['role gate', 'closer vs manager tools'],
+      ['scoped fetch', 'userId injected server-side'],
+      ['verify + aggregate', 'ownership re-checked'],
+      ['answer', 'only your own numbers']
+    ],
+    windml: [
+      ['sensors', '6 accelerometers · 1 kHz'],
+      ['signal cleanup', 'detrend · band-pass'],
+      ['FDD features', 'CSD + SVD · peak picking'],
+      ['dataset', '6,000+ records · 14 campaigns'],
+      ['model tournament', '5 families · 10-fold CV'],
+      ['SHAP audit', 'checked against the physics'],
+      ['saved pipelines', 'ready for monitoring']
+    ],
+    school: [
+      ['field survey', '769 expert-rated records'],
+      ['ordinal encode', 'hazard-specific severity'],
+      ['dedup + split', 'holdout stays unseen'],
+      ['model tournament', '11 algorithms · 10-fold CV'],
+      ['holdout audit', 'adjacent-class misses only'],
+      ['SHAP explain', 'physics-aligned signal'],
+      ['screener app', 'four ratings + reasons']
+    ],
+    pqr: [
+      ['PQR intake', '307 records · 2017-2021'],
+      ['anonymize', 'zero-leak PII audit'],
+      ['clean + validate', 'real-world defects repaired'],
+      ['score sentiment', 'RoBERTuito · local'],
+      ['cross-check', 'second model · kappa 0.13'],
+      ['stats + mining', 'chi-square · TF-IDF'],
+      ['dashboard', 'notebook · figures · app']
     ]
   };
 
@@ -236,10 +270,6 @@
     document.querySelectorAll('.entry').forEach((en) => {
       const r = en.getBoundingClientRect();
       add(en, 'lit', r.top + sy + Math.min(56, r.height / 2));
-    });
-    document.querySelectorAll('.ml-row').forEach((row) => {
-      const r = row.getBoundingClientRect();
-      add(row, 'spine-glow', r.top + sy + r.height / 2);
     });
     return out;
   };
@@ -976,6 +1006,12 @@
     }, 180);
   };
 
+  // OS toggles reduce-motion mid-session: settle to the calm final state
+  // (the CSS side already responds live; a reload restores full motion)
+  if (reducedMotionMQ.addEventListener) {
+    reducedMotionMQ.addEventListener('change', (e) => { if (e.matches) settleReduced(); });
+  }
+
   buildSpine();
   dockCheck();
   if (reducedMotion) {
@@ -997,7 +1033,7 @@
      ------------------------------------------------------------------ */
   if (finePointer && !reducedMotion) {
     const titles = document.querySelectorAll(
-      '.hero-name .line, .section-head h2, .case h3, .entry h3, .ml-info h3, .about-inner h2, .contact-inner h2'
+      '.hero-name .line, .section-head h2, .case h3, .entry h3, .about-inner h2, .contact-inner h2'
     );
     titles.forEach((el) => {
       if (el.closest('.hero-name')) {
@@ -1079,14 +1115,16 @@
      ------------------------------------------------------------------ */
   const aura = document.querySelector('.cursor-aura');
   if (aura && finePointer && !reducedMotion) {
-    let ax = -600, ay = -600, tx = ax, ty = ay, active = false;
+    let ax = -600, ay = -600, tx = ax, ty = ay, active = false, raf = 0;
 
+    // settles like the tilt loop — rAF goes idle once the aura catches up
     const follow = () => {
       ax += (tx - ax) * 0.12;
       ay += (ty - ay) * 0.12;
       aura.style.transform = 'translate3d(' + ax + 'px,' + ay + 'px,0)';
-      requestAnimationFrame(follow);
+      raf = (Math.abs(tx - ax) > 0.25 || Math.abs(ty - ay) > 0.25) ? requestAnimationFrame(follow) : 0;
     };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(follow); };
 
     window.addEventListener('pointermove', (e) => {
       tx = e.clientX;
@@ -1095,8 +1133,8 @@
         active = true;
         document.body.classList.add('aura-on');
         ax = tx; ay = ty;
-        requestAnimationFrame(follow);
       }
+      kick();
     }, { passive: true });
 
     document.addEventListener('mouseleave', () => document.body.classList.remove('aura-on'));
