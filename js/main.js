@@ -1279,6 +1279,47 @@
     // anchors are natively draggable — that was the ghost-drag bug
     flow.addEventListener('dragstart', (e) => e.preventDefault());
 
+    // keyboard: arrow keys steer while the deck has focus
+    flow.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); go(cur - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+    });
+
+    // wheel: one step per notch burst (~120 delta units), short cooldown
+    let acc = 0, coolUntil = 0;
+    flow.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const now = performance.now();
+      if (now < coolUntil) return;
+      acc += Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (Math.abs(acc) >= 120) {
+        go(cur + Math.sign(acc));
+        acc = 0;
+        coolUntil = now + 150;
+      }
+    }, { passive: false });
+
+    // touch: a horizontal swipe steps one cover; a moved pointer never clicks
+    let sx = 0, sy = 0, swiping = false, movedX = 0;
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      swiping = true; movedX = 0; sx = e.clientX; sy = e.clientY;
+    });
+    stage.addEventListener('pointermove', (e) => {
+      if (swiping) movedX = Math.max(movedX, Math.abs(e.clientX - sx));
+    });
+    stage.addEventListener('pointerup', (e) => {
+      if (!swiping) return;
+      swiping = false;
+      const dx = e.clientX - sx;
+      if (Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(e.clientY - sy)) {
+        go(cur + (dx < 0 ? 1 : -1));
+      }
+    });
+    stage.addEventListener('click', (e) => {
+      if (movedX > 10) { e.preventDefault(); e.stopPropagation(); movedX = 0; }
+    }, true);
+
     window.addEventListener('resize', place);
     flow.classList.add('ready');
     go(0);
