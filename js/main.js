@@ -1326,7 +1326,6 @@
     stage.addEventListener('pointerdown', (e) => {
       if (e.pointerType === 'mouse') { movedX = 0; return; }
       swiping = true; movedX = 0; sx = e.clientX; sy = e.clientY;
-      stage.setPointerCapture(e.pointerId);
     });
     stage.addEventListener('pointercancel', () => { swiping = false; movedX = 0; });
     stage.addEventListener('pointermove', (e) => {
