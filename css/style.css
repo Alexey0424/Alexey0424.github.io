@@ -570,14 +570,14 @@ html.js .reveal.in { opacity: 1; transform: none; }
    deck ready (or when JS is off) the covers rest as a plain labeled grid.
    -------------------------------------------------------------------------- */
 .gallery { padding-bottom: clamp(1rem, 2.5vw, 2rem); }
-.flow {
-  --flow-w: clamp(17rem, 34vw, 26rem);   /* front cover width */
+.deck {
+  --deck-w: clamp(17rem, 34vw, 26rem);   /* front cover width */
   width: min(1560px, 100%);
   margin-inline: auto;
   padding-inline: clamp(1rem, 4vw, 3rem);
 }
-.flow-card { text-decoration: none; }
-.flow-card img {
+.deck-card { text-decoration: none; }
+.deck-card img {
   width: 100%;
   aspect-ratio: 2 / 1;
   object-fit: cover;
@@ -586,52 +586,53 @@ html.js .reveal.in { opacity: 1; transform: none; }
   box-shadow: var(--panel-shadow);
 }
 /* resting layout — no JS, or the script hasn't initialized the deck */
-.flow:not(.ready) .flow-stage {
+.deck:not(.ready) .deck-stage {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
   gap: 1.4rem;
 }
-.flow:not(.ready) .flow-card::after {
+.deck:not(.ready) .deck-card::after {
   content: attr(data-label);
   display: block;
   margin-top: 0.6rem;
   font-size: 0.72rem;
   color: var(--terra-text);
   letter-spacing: 0.02em;
+  font-family: var(--font-mono);
 }
 
 /* the 3D deck */
-.flow.ready .flow-stage {
+.deck.ready .deck-stage {
   position: relative;
-  height: calc(var(--flow-w) / 2 + 5.5rem);  /* 2:1 cover + reflection room */
+  height: calc(var(--deck-w) / 2 + 5.5rem);  /* 2:1 cover + reflection room */
   perspective: 1200px;
   touch-action: pan-y;                       /* vertical page scroll stays native */
 }
-.flow.ready .flow-card {
+.deck.ready .deck-card {
   position: absolute;
   left: 50%;
   top: 0;
-  width: var(--flow-w);
-  margin-left: calc(var(--flow-w) / -2);
+  width: var(--deck-w);
+  margin-left: calc(var(--deck-w) / -2);
   transition: transform 0.5s var(--ease-out);
   will-change: transform;
 }
-.flow.ready .flow-card img {
+.deck.ready .deck-card img {
   -webkit-box-reflect: below 10px linear-gradient(transparent 62%, rgba(0, 0, 0, 0.28));
   transition: border-color 0.3s ease;
 }
-.flow.ready .flow-card.front:hover img,
-.flow.ready .flow-card.front:focus-visible img { border-color: var(--terra); }
-.flow.ready .flow-card:not(.front) { cursor: pointer; }
+.deck.ready .deck-card.front:hover img,
+.deck.ready .deck-card.front:focus-visible img { border-color: var(--terra); }
+.deck.ready .deck-card:not(.front) { cursor: pointer; }
 @media (max-width: 900px) {
-  .flow { --flow-w: clamp(15rem, 64vw, 19rem); }
+  .deck { --deck-w: clamp(15rem, 64vw, 19rem); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .flow.ready .flow-card { transition: none; }
+  .deck.ready .deck-card { transition: none; }
 }
 
 /* deck HUD — arrows, numbers, counter, caption */
-.flow-nav {
+.deck-nav {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -639,7 +640,7 @@ html.js .reveal.in { opacity: 1; transform: none; }
   gap: clamp(0.4rem, 1.2vw, 0.8rem);
   margin-top: 1.4rem;
 }
-.flow-arrow {
+.deck-arrow {
   width: 2.4rem;
   height: 2.4rem;
   border-radius: 50%;
@@ -652,16 +653,16 @@ html.js .reveal.in { opacity: 1; transform: none; }
   cursor: pointer;
   transition: color 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
 }
-.flow-arrow:hover:not(:disabled) { color: var(--gold); border-color: var(--terra); }
-.flow-arrow:disabled { opacity: 0.35; cursor: default; }
-.flow-index {
+.deck-arrow:hover:not(:disabled) { color: var(--gold); border-color: var(--terra); }
+.deck-arrow:disabled { opacity: 0.35; cursor: default; }
+.deck-index {
   display: flex;
   gap: 0.15rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.flow-index button {
+.deck-index button {
   min-width: 1.9rem;
   height: 1.9rem;
   border: 0;
@@ -673,16 +674,26 @@ html.js .reveal.in { opacity: 1; transform: none; }
   cursor: pointer;
   transition: color 0.25s ease, background-color 0.25s ease;
 }
-.flow-index button:hover { color: var(--terra-hot); }
-.flow-index button.on { background: var(--terra); color: var(--terra-ink); }
-.flow-count { font-size: 0.75rem; color: var(--ink-dim); margin-left: 0.4rem; }
-.flow-caption {
+.deck-index button:hover { color: var(--terra-hot); }
+.deck-index button.on { background: var(--terra); color: var(--terra-ink); }
+.deck-count { font-size: 0.75rem; color: var(--ink-dim); margin-left: 0.4rem; }
+.deck-caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
   margin-top: 0.9rem;
   min-height: 1.3em;                 /* caption swaps must not shift layout */
-  text-align: center;
   font-size: 0.78rem;
   letter-spacing: 0.02em;
   color: var(--terra-text);
+}
+.deck-caption::before {
+  content: "";
+  width: 7px; height: 7px;
+  background: var(--terra);
+  transform: rotate(45deg);
+  flex: none;
 }
 
 /* --------------------------------------------------------------------------

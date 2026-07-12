@@ -1215,10 +1215,10 @@
      click; only the front cover follows its link. Native link-drag is
      blocked so images never ghost-drag.
      ------------------------------------------------------------------ */
-  const flow = document.querySelector('.flow');
-  if (flow) {
-    const stage = flow.querySelector('.flow-stage');
-    const cards = [...flow.querySelectorAll('.flow-card')];
+  const deck = document.querySelector('.deck');
+  if (deck && deck.querySelector('.deck-stage') && deck.querySelector('.deck-card')) {
+    const stage = deck.querySelector('.deck-stage');
+    const cards = [...deck.querySelectorAll('.deck-card')];
     const total = cards.length;
     let cur = 0;
 
@@ -1250,10 +1250,10 @@
       b.textContent = text;
       return b;
     };
-    const prev = mkBtn('flow-arrow prev', 'Previous project', '‹');
-    const next = mkBtn('flow-arrow next', 'Next project', '›');
+    const prev = mkBtn('deck-arrow prev', 'Previous project', '‹');
+    const next = mkBtn('deck-arrow next', 'Next project', '›');
     const index = document.createElement('ol');
-    index.className = 'flow-index';
+    index.className = 'deck-index';
     const numBtns = cards.map((card, i) => {
       const li = document.createElement('li');
       const b = mkBtn('', 'Project ' + (i + 1) + ': ' + card.dataset.label, String(i + 1));
@@ -1263,14 +1263,14 @@
       return b;
     });
     const count = document.createElement('span');
-    count.className = 'flow-count mono';
+    count.className = 'deck-count mono';
     const caption = document.createElement('p');
-    caption.className = 'flow-caption mono';
+    caption.className = 'deck-caption mono reveal';
     caption.setAttribute('aria-live', 'polite');
     const hud = document.createElement('div');
-    hud.className = 'flow-nav';
+    hud.className = 'deck-nav reveal';
     hud.append(prev, index, next, count);
-    flow.after(hud, caption);
+    deck.after(hud, caption);
 
     const go = (i) => {
       cur = Math.max(0, Math.min(total - 1, i));
@@ -1297,17 +1297,18 @@
     });
 
     // anchors are natively draggable — that was the ghost-drag bug
-    flow.addEventListener('dragstart', (e) => e.preventDefault());
+    deck.addEventListener('dragstart', (e) => e.preventDefault());
 
     // keyboard: arrow keys steer while the deck has focus
-    flow.addEventListener('keydown', (e) => {
+    deck.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft')  { e.preventDefault(); go(cur - 1); }
       if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
     });
 
     // wheel: one step per notch burst (~120 delta units), short cooldown
     let acc = 0, coolUntil = 0;
-    flow.addEventListener('wheel', (e) => {
+    deck.addEventListener('wheel', (e) => {
+      if (e.ctrlKey) return;                      // pinch/browser zoom stays native
       e.preventDefault();
       const now = performance.now();
       if (now < coolUntil) return;
@@ -1323,9 +1324,11 @@
     // touch: a horizontal swipe steps one cover; a moved pointer never clicks
     let sx = 0, sy = 0, swiping = false, movedX = 0;
     stage.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse') return;
+      if (e.pointerType === 'mouse') { movedX = 0; return; }
       swiping = true; movedX = 0; sx = e.clientX; sy = e.clientY;
+      stage.setPointerCapture(e.pointerId);
     });
+    stage.addEventListener('pointercancel', () => { swiping = false; movedX = 0; });
     stage.addEventListener('pointermove', (e) => {
       if (swiping) movedX = Math.max(movedX, Math.abs(e.clientX - sx));
     });
@@ -1342,7 +1345,7 @@
     }, true);
 
     window.addEventListener('resize', place);
-    flow.classList.add('ready');
+    deck.classList.add('ready');
     go(0);
   }
 
