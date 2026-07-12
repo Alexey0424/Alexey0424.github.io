@@ -1291,7 +1291,8 @@
       e.preventDefault();
       const now = performance.now();
       if (now < coolUntil) return;
-      acc += Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      const unit = e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? 120 : 1; // lines/pages → px-ish
+      acc += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * unit;
       if (Math.abs(acc) >= 120) {
         go(cur + Math.sign(acc));
         acc = 0;
