@@ -600,6 +600,36 @@ html.js .reveal.in { opacity: 1; transform: none; }
   letter-spacing: 0.02em;
 }
 
+/* the 3D deck */
+.flow.ready .flow-stage {
+  position: relative;
+  height: calc(var(--flow-w) / 2 + 5.5rem);  /* 2:1 cover + reflection room */
+  perspective: 1200px;
+  touch-action: pan-y;                       /* vertical page scroll stays native */
+}
+.flow.ready .flow-card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--flow-w);
+  margin-left: calc(var(--flow-w) / -2);
+  transition: transform 0.5s var(--ease-out);
+  will-change: transform;
+}
+.flow.ready .flow-card img {
+  -webkit-box-reflect: below 10px linear-gradient(transparent 62%, rgba(0, 0, 0, 0.28));
+  transition: border-color 0.3s ease;
+}
+.flow.ready .flow-card.front:hover img,
+.flow.ready .flow-card.front:focus-visible img { border-color: var(--terra); }
+.flow.ready .flow-card:not(.front) { cursor: pointer; }
+@media (max-width: 900px) {
+  .flow { --flow-w: clamp(15rem, 64vw, 19rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow.ready .flow-card { transition: none; }
+}
+
 /* --------------------------------------------------------------------------
    Featured work
    -------------------------------------------------------------------------- */

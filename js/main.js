@@ -1190,38 +1190,55 @@
   }
 
   /* ------------------------------------------------------------------
-     AI Projects strip — grab-and-drag horizontal scroll (mouse),
-     native swipe on touch, vertical wheel rides sideways. A real drag
-     swallows the click so cards only navigate on a clean tap.
+     AI Projects — iPod-style Cover Flow. One cover faces the reader,
+     the rest recede in 3D to the sides. Side covers fly to center on
+     click; only the front cover follows its link. Native link-drag is
+     blocked so images never ghost-drag.
      ------------------------------------------------------------------ */
-  const strip = document.querySelector('.strip');
-  if (strip) {
-    let down = false, startX = 0, startL = 0, moved = 0;
-    strip.addEventListener('pointerdown', (e) => {
-      if (e.pointerType !== 'mouse') return;        // touch scrolls natively
-      down = true; moved = 0;
-      startX = e.clientX; startL = strip.scrollLeft;
-      strip.setPointerCapture(e.pointerId);
+  const flow = document.querySelector('.flow');
+  if (flow) {
+    const stage = flow.querySelector('.flow-stage');
+    const cards = [...flow.querySelectorAll('.flow-card')];
+    const total = cards.length;
+    let cur = 0;
+
+    const mobileMQ = window.matchMedia('(max-width: 900px)');
+    const place = () => {
+      const w = cards[0].offsetWidth;
+      const m = mobileMQ.matches;
+      const base = w * (m ? 0.55 : 0.62);   // center → first neighbor
+      const step = w * (m ? 0.10 : 0.17);   // each additional neighbor
+      const depth = m ? 130 : 170;          // how far side covers recede
+      cards.forEach((card, i) => {
+        const off = i - cur;
+        const side = Math.sign(off);
+        card.classList.toggle('front', off === 0);
+        card.style.zIndex = String(100 - Math.abs(off));
+        card.style.transform = off === 0
+          ? 'translateX(0) translateZ(0) rotateY(0deg)'
+          : 'translateX(' + (side * (base + (Math.abs(off) - 1) * step)).toFixed(1) +
+            'px) translateZ(-' + depth + 'px) rotateY(' + (side * -45) + 'deg)';
+      });
+    };
+
+    const go = (i) => {
+      cur = Math.max(0, Math.min(total - 1, i));
+      place();
+    };
+
+    // side covers center themselves; the front cover follows its link
+    cards.forEach((card, i) => {
+      card.addEventListener('click', (e) => {
+        if (i !== cur) { e.preventDefault(); go(i); }
+      });
     });
-    strip.addEventListener('pointermove', (e) => {
-      if (!down) return;
-      const dx = e.clientX - startX;
-      moved = Math.max(moved, Math.abs(dx));
-      if (moved > 5) strip.classList.add('dragging');
-      strip.scrollLeft = startL - dx;
-    });
-    const release = () => { down = false; strip.classList.remove('dragging'); };
-    strip.addEventListener('pointerup', release);
-    strip.addEventListener('pointercancel', release);
-    strip.addEventListener('click', (e) => {
-      if (moved > 5) { e.preventDefault(); e.stopPropagation(); }
-    }, true);
-    strip.addEventListener('wheel', (e) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        strip.scrollLeft += e.deltaY;
-        e.preventDefault();
-      }
-    }, { passive: false });
+
+    // anchors are natively draggable — that was the ghost-drag bug
+    flow.addEventListener('dragstart', (e) => e.preventDefault());
+
+    window.addEventListener('resize', place);
+    flow.classList.add('ready');
+    go(0);
   }
 
   /* ------------------------------------------------------------------
