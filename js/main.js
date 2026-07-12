@@ -836,15 +836,33 @@
     return samples[lo].s;
   };
 
-  // the light tracks the scroll directly — the reader sets the pace
-  let spineTick = false;
+  // the light chases the scroll with a short eased catch-up — wheel
+  // input moves the page in ~100px steps; the easing turns those steps
+  // into one continuous glide. The loop parks itself once settled, and
+  // identical frames skip the repaint entirely.
+  let targetS = 0, curS = 0, glideRaf = 0, lastKey = '';
+  const paintSpine = () => {
+    const key = Math.round(curS * 2) + ':' + Math.round(window.scrollY);
+    if (key !== lastKey) { lastKey = key; lightAt(curS); }
+  };
+  const glide = () => {
+    glideRaf = 0;
+    curS += (targetS - curS) * 0.16;
+    if (Math.abs(targetS - curS) < 0.5) curS = targetS;
+    paintSpine();
+    if (curS !== targetS) glideRaf = requestAnimationFrame(glide);
+  };
+  const syncSpine = () => {          // jump with no glide (init, resize, intro exit)
+    if (glideRaf) { cancelAnimationFrame(glideRaf); glideRaf = 0; }
+    if (!totalLen) return;
+    targetS = curS = sForScroll();
+    lastKey = '';
+    paintSpine();
+  };
   const onSpineScroll = () => {
-    if (spineTick) return;
-    spineTick = true;
-    requestAnimationFrame(() => {
-      spineTick = false;
-      if (totalLen) lightAt(sForScroll());
-    });
+    if (!totalLen) return;
+    targetS = sForScroll();
+    if (!glideRaf) glideRaf = requestAnimationFrame(glide);
   };
 
   // the console starts big in the hero's open right side, then shrinks
@@ -857,6 +875,8 @@
 
   const settleReduced = () => {
     if (!totalLen) return;
+    if (glideRaf) { cancelAnimationFrame(glideRaf); glideRaf = 0; }
+    targetS = curS = totalLen;
     lightAt(totalLen);
     zones.forEach((z) => z.el.classList.add(z.cls));
     paintMandalas(1e9);
@@ -920,7 +940,7 @@
       cAttr(headHalo, { r: 78 });
       wave.remove(); waveHalo.remove(); shock.remove();
       mands.forEach((mm) => { mm.last = -1; });
-      if (totalLen) lightAt(sForScroll());
+      syncSpine();
       window.removeEventListener('wheel', finish);
       window.removeEventListener('touchstart', finish);
       window.removeEventListener('keydown', finish);
@@ -1000,8 +1020,8 @@
       buildSpine();
       if (reducedMotion) {
         settleReduced();
-      } else if (totalLen) {
-        lightAt(sForScroll());
+      } else {
+        syncSpine();
       }
     }, 180);
   };
@@ -1019,7 +1039,7 @@
     window.addEventListener('resize', rebuild);
     window.addEventListener('load', rebuild);
   } else {
-    if (totalLen) lightAt(sForScroll());
+    syncSpine();
     runIntro();
     window.addEventListener('scroll', onSpineScroll, { passive: true });
     window.addEventListener('scroll', dockCheck, { passive: true });
