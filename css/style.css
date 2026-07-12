@@ -630,6 +630,61 @@ html.js .reveal.in { opacity: 1; transform: none; }
   .flow.ready .flow-card { transition: none; }
 }
 
+/* deck HUD — arrows, numbers, counter, caption */
+.flow-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(0.4rem, 1.2vw, 0.8rem);
+  margin-top: 1.4rem;
+}
+.flow-arrow {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  font: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
+}
+.flow-arrow:hover:not(:disabled) { color: var(--gold); border-color: var(--terra); }
+.flow-arrow:disabled { opacity: 0.35; cursor: default; }
+.flow-index {
+  display: flex;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.flow-index button {
+  min-width: 1.9rem;
+  height: 1.9rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-dim);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.25s ease, background-color 0.25s ease;
+}
+.flow-index button:hover { color: var(--terra-hot); }
+.flow-index button.on { background: var(--terra); color: var(--terra-ink); }
+.flow-count { font-size: 0.75rem; color: var(--ink-dim); margin-left: 0.4rem; }
+.flow-caption {
+  margin-top: 0.9rem;
+  min-height: 1.3em;                 /* caption swaps must not shift layout */
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--terra-text);
+}
+
 /* --------------------------------------------------------------------------
    Featured work
    -------------------------------------------------------------------------- */

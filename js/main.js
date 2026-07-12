@@ -1221,10 +1221,53 @@
       });
     };
 
+    // ---- deck HUD: arrows, clickable numbers, counter, caption ----
+    const mkBtn = (cls, label, text) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      if (cls) b.className = cls;
+      b.setAttribute('aria-label', label);
+      b.textContent = text;
+      return b;
+    };
+    const prev = mkBtn('flow-arrow prev', 'Previous project', '‹');
+    const next = mkBtn('flow-arrow next', 'Next project', '›');
+    const index = document.createElement('ol');
+    index.className = 'flow-index';
+    const numBtns = cards.map((card, i) => {
+      const li = document.createElement('li');
+      const b = mkBtn('', 'Project ' + (i + 1) + ': ' + card.dataset.label, String(i + 1));
+      b.addEventListener('click', () => go(i));
+      li.appendChild(b);
+      index.appendChild(li);
+      return b;
+    });
+    const count = document.createElement('span');
+    count.className = 'flow-count mono';
+    const caption = document.createElement('p');
+    caption.className = 'flow-caption mono';
+    caption.setAttribute('aria-live', 'polite');
+    const hud = document.createElement('div');
+    hud.className = 'flow-nav';
+    hud.append(prev, index, next, count);
+    flow.after(hud, caption);
+
     const go = (i) => {
       cur = Math.max(0, Math.min(total - 1, i));
       place();
+      prev.disabled = cur === 0;
+      next.disabled = cur === total - 1;
+      numBtns.forEach((b, j) => {
+        b.classList.toggle('on', j === cur);
+        if (j === cur) b.setAttribute('aria-current', 'true');
+        else b.removeAttribute('aria-current');
+      });
+      count.textContent = (cur + 1) + ' / ' + total;
+      caption.textContent = String(cur + 1).padStart(2, '0') + ' · ' + cards[cur].dataset.label;
     };
+
+    prev.addEventListener('click', () => go(cur - 1));
+    next.addEventListener('click', () => go(cur + 1));
 
     // side covers center themselves; the front cover follows its link
     cards.forEach((card, i) => {
