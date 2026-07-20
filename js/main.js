@@ -93,6 +93,15 @@
       ['SHAP audit', 'checked against the physics'],
       ['saved pipelines', 'ready for monitoring']
     ],
+    winddl: [
+      ['raw signal', '6 accelerometers · no features'],
+      ['windowing', '2 s — one fundamental period'],
+      ['z-score', 'per-window normalization'],
+      ['DRN training', 'PyTorch · conv + residual blocks'],
+      ['Optuna HPO', 'Bayesian search'],
+      ['leakage audit', 'record-level split · honest eval'],
+      ['ablations', 'physics-driven verdict']
+    ],
     school: [
       ['field survey', '769 expert-rated records'],
       ['ordinal encode', 'hazard-specific severity'],

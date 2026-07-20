@@ -126,14 +126,6 @@
           </div>
         </li>
 
-        <li class="entry entry-edu reveal">
-          <div class="entry-when mono">Aug 2025</div>
-          <div class="entry-body">
-            <h3>Master's in Engineering, ML focus · EIA University</h3>
-            <p class="entry-where mono">1st Class · 94%</p>
-          </div>
-        </li>
-
         <li class="entry reveal">
           <div class="entry-when mono">Aug 2023 – Aug 2025</div>
           <div class="entry-body">
@@ -144,6 +136,23 @@
               <li>Model tournaments — Random Forest, SVM, autoencoders — on a PostgreSQL-fed pipeline; the winners shipped.</li>
             </ul>
             <a class="entry-link mono" href="https://github.com/Alexey0424/wind-turbine-damage-detection-ml" target="_blank" rel="noopener">See it: Turbine FDD <span class="arrow" aria-hidden="true">&#8599;</span></a>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ============ STUDIES ============ -->
+    <section class="experience studies" id="studies">
+      <div class="section-head reveal">
+        <h2>Studies</h2>
+        <p>The formal foundation under the practice.</p>
+      </div>
+      <ol class="timeline">
+        <li class="entry entry-edu reveal">
+          <div class="entry-when mono">Aug 2025</div>
+          <div class="entry-body">
+            <h3>Master's in Engineering, ML focus · EIA University</h3>
+            <p class="entry-where mono">1st Class · 94%</p>
           </div>
         </li>
       </ol>
@@ -172,6 +181,9 @@
           <a class="deck-card" href="#case-windml" data-label="Machine Learning">
             <img src="assets/projects/wind-ml.jpg" alt="Wind turbine damage detection" loading="lazy" draggable="false">
           </a>
+          <a class="deck-card" href="#case-winddl" data-label="Deep Learning">
+            <img src="assets/projects/wind-dl.jpg" alt="Deep learning on raw turbine vibration signals" loading="lazy" draggable="false">
+          </a>
           <a class="deck-card" href="#case-school" data-label="ML Research">
             <img src="assets/projects/school.jpg" alt="Rural school risk screening" loading="lazy" draggable="false">
           </a>
@@ -192,7 +204,7 @@
       <!-- ORCA -->
       <article class="case reveal" id="case-orca">
         <div class="case-text">
-          <h3>Call intelligence, fully self-hosted.</h3>
+          <h3>Machine learning applied to sales-call intelligence — fully self-hosted.</h3>
           <p class="case-story">
             A raw sales call goes in. Out come the <span class="kw">transcript</span>, the speaker
             <span class="kw">emotions</span>, the KPIs, a coaching scorecard and a searchable archive
@@ -215,7 +227,7 @@
       <!-- SCRAPER -->
       <article class="case case-flip reveal" id="case-scraper">
         <div class="case-text">
-          <h3>The scraper that can't make things up.</h3>
+          <h3>Web scraping enhanced with local LLMs — every value verified.</h3>
           <p class="case-story">
             <span class="kw">Plain English</span> in, <span class="kw">spreadsheet</span> out.
             A local LLM plans the crawl, and every extracted value is
@@ -238,7 +250,7 @@
       <!-- CRM SUITE -->
       <article class="case reveal" id="case-crm">
         <div class="case-text">
-          <h3>A sales team's nervous system.</h3>
+          <h3>Automated workflows connecting the sales stack to the CRM.</h3>
           <p class="case-story">
             Leads, calls and stage changes flow between the CRM, the phone system, Slack and
             Google Forms with <span class="kw">no human in the middle</span>. Ran in
@@ -260,12 +272,13 @@
       <!-- MCP CONNECTOR -->
       <article class="case case-flip reveal" id="case-mcp">
         <div class="case-text">
-          <h3>Ask your CRM. It knows who's asking.</h3>
+          <h3>MCP server connecting the CRM to Claude AI.</h3>
           <p class="case-story">
-            A closer opens Claude and asks <span class="kw">"how did I do today?"</span>.
-            A Cloudflare Worker maps their Google sign-in to a CRM identity and scopes every
-            query <span class="kw">server-side</span> — managers get six extra tools nobody
-            else can even see.
+            The sales team's CRM data — <span class="kw">KPIs</span>, lead activity, call
+            performance — available inside <span class="kw">Claude AI</span> through a remote
+            MCP server, so Claude can analyze it on demand and hand back clean HTML reports.
+            A Cloudflare Worker maps each Google sign-in to a CRM identity and scopes every
+            query <span class="kw">server-side</span>.
           </p>
           <ul class="case-results">
             <li>In production for a US real-estate sales team — onboarding is <strong class="mono">1</strong> click</li>
@@ -283,7 +296,7 @@
       <!-- WIND TURBINE ML -->
       <article class="case reveal" id="case-windml">
         <div class="case-text">
-          <h3>A turbine that tells you where it hurts.</h3>
+          <h3>Machine learning for wind-turbine damage detection.</h3>
           <p class="case-story">
             Six accelerometers on a real <span class="kw">14-meter turbine</span> in the Andes.
             Damage physically induced, natural frequencies distilled from raw vibration, and a
@@ -303,10 +316,33 @@
         <div class="case-media flow" data-flow="windml" data-tilt role="img" aria-label="Turbine pipeline: sensors, signal cleanup, FDD features, dataset build, model tournament, SHAP audit, saved pipelines"></div>
       </article>
 
-      <!-- RURAL SCHOOL RISK -->
-      <article class="case case-flip reveal" id="case-school">
+      <!-- WIND TURBINE DEEP LEARNING -->
+      <article class="case case-flip reveal" id="case-winddl">
         <div class="case-text">
-          <h3>Expert judgment, taught to a model.</h3>
+          <h3>Deep residual networks for pattern detection on raw vibration signals.</h3>
+          <p class="case-story">
+            A published deep-learning method reproduced in <span class="kw">PyTorch</span> and
+            trained directly on <span class="kw">raw accelerometer waveforms</span> from the same
+            14-meter turbine — then stress-tested with leakage-safe evaluation and
+            <span class="kw">physics-driven ablations</span>.
+          </p>
+          <ul class="case-results">
+            <li>Detection of never-seen damage lifted <strong class="mono">47% &#8594; 98%</strong> by per-window normalization</li>
+            <li>Leakage-safe record-level evaluation — paper-style numbers drop <strong class="mono">4&#8211;8</strong> points under the honest split</li>
+            <li>Engineered modal features + LightGBM still win by <strong class="mono">~20</strong> accuracy points — and the study shows why</li>
+          </ul>
+          <ul class="chips" aria-label="Technologies">
+            <li>PyTorch</li><li>CUDA</li><li>Optuna</li><li>NumPy</li><li>h5py</li><li>pandas</li>
+          </ul>
+          <span class="case-note mono">Code private &#8212; under peer review for a scientific publication</span>
+        </div>
+        <div class="case-media flow" data-flow="winddl" data-tilt role="img" aria-label="Deep learning pipeline: raw signal, windowing, z-score, DRN training, Optuna search, leakage audit, ablations"></div>
+      </article>
+
+      <!-- RURAL SCHOOL RISK -->
+      <article class="case reveal" id="case-school">
+        <div class="case-text">
+          <h3>LightGBM models that learn expert judgment in structural risk screening.</h3>
           <p class="case-story">
             Rural Colombian schools, expert-rated for <span class="kw">earthquake</span>, landslide,
             flood and windstorm risk. Hazard-specific encodings, an 11-algorithm tournament, and a
@@ -326,9 +362,9 @@
       </article>
 
       <!-- PQR SENTIMENT -->
-      <article class="case reveal" id="case-pqr">
+      <article class="case case-flip reveal" id="case-pqr">
         <div class="case-text">
-          <h3>The complaint line, decoded.</h3>
+          <h3>BERT-based sentiment analysis of citizen service complaints.</h3>
           <p class="case-story">
             Real citizen complaints from a Colombian aqueduct program. PII stripped with a
             <span class="kw">zero-leak audit</span>, scored by Spanish transformers running
