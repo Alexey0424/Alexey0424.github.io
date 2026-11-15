@@ -624,6 +624,27 @@ html.js .reveal.in { opacity: 1; transform: none; }
 .deck.ready .deck-card.front:hover img,
 .deck.ready .deck-card.front:focus-visible img { border-color: var(--terra); }
 .deck.ready .deck-card:not(.front) { cursor: pointer; }
+/* animated covers: a muted loop over the still cover, played only on the front card */
+.deck-card { position: relative; }
+.deck-motion {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  opacity: 0;
+  transition: opacity 0.45s ease, border-color 0.3s ease;
+  pointer-events: none;
+}
+.deck.ready .deck-motion {
+  -webkit-box-reflect: below 10px linear-gradient(transparent 62%, rgba(0, 0, 0, 0.28));
+}
+.deck-card.front.playing .deck-motion { opacity: 1; }
+.deck.ready .deck-card.front:hover .deck-motion { border-color: var(--terra); }
+@media (prefers-reduced-motion: reduce) { .deck-motion { display: none; } }
 @media (max-width: 900px) {
   .deck { --deck-w: clamp(15rem, 64vw, 19rem); }
 }
