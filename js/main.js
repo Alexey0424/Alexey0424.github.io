@@ -1231,6 +1231,27 @@
     const total = cards.length;
     let cur = 0;
 
+    // animated covers (assets/projects/motion): play only the front card's loop
+    const calmMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+    cards.forEach((card) => {
+      const v = card.querySelector('.deck-motion');
+      if (!v) return;
+      v.addEventListener('playing', () => card.classList.add('playing'));
+      v.addEventListener('pause', () => card.classList.remove('playing'));
+    });
+    const syncMotion = () => {
+      cards.forEach((card) => {
+        const v = card.querySelector('.deck-motion');
+        if (!v) return;
+        if (card.classList.contains('front') && !calmMQ.matches) {
+          const p = v.play();
+          if (p && p.catch) p.catch(() => {});
+        } else if (!v.paused) {
+          v.pause();
+        }
+      });
+    };
+
     const mobileMQ = window.matchMedia('(max-width: 900px)');
     const place = () => {
       const w = cards[0].offsetWidth;
@@ -1248,6 +1269,7 @@
           : 'translateX(' + (side * (base + (Math.abs(off) - 1) * step)).toFixed(1) +
             'px) translateZ(-' + depth + 'px) rotateY(' + (side * -45) + 'deg)';
       });
+      syncMotion();
     };
 
     // ---- deck HUD: arrows, clickable numbers, counter, caption ----
